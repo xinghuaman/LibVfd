@@ -4,7 +4,6 @@ int dataPin = 2;
 int latchPin = 3;
 int clockPin = 4;
 
- 
  class SevenSegments {
   private:
     unsigned long _masks[0xF];
@@ -99,12 +98,11 @@ void SevenSegmentEncoder::encode(int number) {
     Serial.println(i);
     byte digit = number % _radix;
     number = number / _radix;
-    (*_myBins[i]) |= _mySegments[i]->getMaskForDigit(digit);
+    (*_myBins[i])&=~_mySegments[i]->getMaskForClearing();
+    (*_myBins[i])|=_mySegments[i]->getMaskForDigit(digit);
   }
   //TODO: Handle overflow
 };
-
- 
  
 class Shifter {
   private:
@@ -124,7 +122,6 @@ Shifter::Shifter(int dataPin, int latchPin, int clockPin, unsigned long invertMa
   _latchPin = latchPin;
   _clockPin = clockPin;
   _invertMask = invertMask;
-
 }
 
 void Shifter::begin(){
@@ -138,7 +135,7 @@ void Shifter::write(unsigned long toWrite){
       toWrite ^= _invertMask;
   
      digitalWrite(latchPin,LOW);
-     for (int i=3;i>=0;i--){
+     for (int i=2;i>=0;i--){
        byte theByte = (byte) (toWrite >> (i*8));
        //Serial.println(theByte,HEX);
        shiftOut(dataPin, clockPin, MSBFIRST, theByte);
@@ -176,11 +173,13 @@ class SingleFunction {
     unsigned long* _bin;
     String _memonic;
     unsigned long _mask;
+    boolean _blink;
     
   public:
     void begin(unsigned long*, unsigned long mask, String memonic);
     boolean tryObey(String command);
     String getMemonic();
+    void animate();
 };
 
 void SingleFunction::begin(unsigned long* targetBin, unsigned long mask, String memonic) {
@@ -189,12 +188,22 @@ void SingleFunction::begin(unsigned long* targetBin, unsigned long mask, String 
   _memonic=memonic;
 };
 
+void SingleFunction::animate() {
+  if (_blink) (*_bin)^=_mask;
+}
+
 boolean SingleFunction::tryObey(String command){
+  Serial.println(command.substring(0,_memonic.length()));
   if (_memonic.equals(command.substring(0,_memonic.length()))) {
-    String wantsOnOrOff = command.substring(_memonic.length()+1,_memonic.length()+2);   
+    String wantsOnOrOff = command.substring(_memonic.length()+1,_memonic.length()+2);
+    Serial.println(wantsOnOrOff);
     if (wantsOnOrOff.equals("1")) {
       (*_bin)|=_mask;
+      _blink=false;
+    } else if (wantsOnOrOff.equals("b")) {
+      _blink=true;    
     } else {
+      _blink=false;
       (*_bin)&=~_mask;
     }
     return true;
@@ -247,40 +256,65 @@ String DigitCommandParser::getMemonic() {
   return _memonic;
 }
 
+class Animation {
+   private:
+     unsigned long  _masks[10];
+     unsigned long* _bins[10];
+     unsigned long _offMask;
+     byte _totalStepsCounter;
+     byte _animationCounter;
+     String _memonic;
+     
+   public:
+     void begin(String memonic, unsigned long offMask);
+     void addStep(unsigned long mask, unsigned long* bin);
+     void animate();
+     boolean tryObey(String command);
+};
+
+void Animation::begin(String memonic, unsigned long offMask) {
+   _memonic = memonic;
+   _offMask = offMask;
+}
+
+void Animation::addStep(unsigned long mask, unsigned long* bin) {
+  _masks[_totalStepsCounter] = mask;
+  _bins[_totalStepsCounter] = bin;
+  _totalStepsCounter++;
+}
+
+void Animation::animate() {
+  (*_bins[_animationCounter])|=_offMask;
+  (*_bins[_animationCounter])&=~_masks[_animationCounter];
+  _animationCounter++;
+  if (_animationCounter >= _totalStepsCounter)
+    _animationCounter=0;
+}
+
+boolean Animation::tryObey(String command) {
+  return false;
+}
+
 class AnotherVFD {
   private:
     unsigned long _bins[4];
     
-    //Several Grids
     SevenSegments _rightseg;
     SevenSegments _leftseg;
     SevenSegmentEncoder _encoder[3];
     DigitCommandParser _parsers[3];
    
-    //Gate 0
-    unsigned long _dvd[6];
-    unsigned long _dvdcenter = 0x400;
-    unsigned long _dvdOffMask = 0x3F0;
+    Animation _tdvd;
     
-    SingleFunction _singlefunctions[10];
+    SingleFunction _singlefunctions[20];
     int _numSingleFunctions=0;
-    
-    //Gate 1
-    unsigned long v = 0x10;
-    unsigned long cd= 0x20;
-    unsigned long p = 0x40;
-    unsigned long commas = 0x80;
-    unsigned long speakerLeft = 0x200;
-    unsigned long speakerRight = 0x400;
-    unsigned long middleDash = 0x100;
     
     byte dvdAnimationCounter=0;
    
   public:
     AnotherVFD();
     unsigned long* getBins();
-    void stepDvdAnimation();
-    void dvdOff();
+    void animate();
     void tryObey(String command);
 };
 
@@ -290,14 +324,6 @@ AnotherVFD::AnotherVFD()
   _bins[1] = 0x02;
   _bins[2] = 0x04;
   _bins[3] = 0x08;
-
-  
-  _dvd[0]=0x10;
-  _dvd[1]=0x20;
-  _dvd[2]=0x40;
-  _dvd[3]=0x80;
-  _dvd[4]=0x100;
-  _dvd[5]=0x200;
   
   _leftseg.begin(0x10, 0x40, 0x20, 0x80, 0x200, 0x100, 0x400, 0x00);
   _rightseg.begin(0x1000, 0x4000, 0x2000, 0x8000, 0x20000, 0x10000, 0x40000, 0x00);
@@ -323,9 +349,68 @@ AnotherVFD::AnotherVFD()
   _parsers[2] = DigitCommandParser();
   _parsers[2].begin("digit3",_encoder+2);
   
+
+  
+  _tdvd.begin("animate",0x3F0);
+  _tdvd.addStep(0x10,_bins+0);
+  _tdvd.addStep(0x20,_bins+0);
+  _tdvd.addStep(0x40,_bins+0);
+  _tdvd.addStep(0x80,_bins+0);
+  _tdvd.addStep(0x100,_bins+0);
+  _tdvd.addStep(0x200,_bins+0);
+  
+  //Gate 1
+  //unsigned long v = 0x10;
+  //unsigned long cd= 0x20;
+  //unsigned long p = 0x40;
+  //unsigned long commas = 0x80;
+  //unsigned long speakerLeft = 0x200;
+  //unsigned long speakerRight = 0x400;
+  //unsigned long middleDash = 0x100;
+  //unsigned long _dvdcenter = 0x400;
+  //unsigned long _dvdOffMask = 0x3F0;
+  
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+0,0x400,"dvdcenter");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+0,0x800,"3.0");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+0,0x80000,"\\");
+  
   
   _singlefunctions[_numSingleFunctions]=SingleFunction();
   _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x10,"v");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x20,"cd");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x40,"p");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x80,"commas");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x100,"dash");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x200,"speakerl");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x400,"speakerr");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x800,"S");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x80000,"N");
+  
+  
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+2,0x800,"pbc");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+2,0x80000,"dvd");
+  
+  
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+3,0x800,"mp3");
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singlefunctions[_numSingleFunctions++].begin(_bins+3,0x80000,":");
+
+  
+
 };
 
 void AnotherVFD::tryObey(String command) {
@@ -335,23 +420,20 @@ void AnotherVFD::tryObey(String command) {
   for(int i=0;i<3;i++) {
     if (_parsers[i].tryObey(command)) return;
   }
+  Serial.print("Unrecognized: ");
+  Serial.print(command);
 };
 
 unsigned long* AnotherVFD::getBins() {
   return _bins;
 };
 
-void AnotherVFD::stepDvdAnimation(){
-  _bins[0]|=_dvdOffMask;
-  _bins[0]&=~_dvd[dvdAnimationCounter++];
-  _bins[0]^=_dvdcenter;
-  if (dvdAnimationCounter>=6)
-    dvdAnimationCounter=0;
+void AnotherVFD::animate(){
+  _tdvd.animate();
+  for(int i=0;i<_numSingleFunctions;i++){
+    _singlefunctions[i].animate();
+  }
 };
-
-void AnotherVFD::dvdOff(){
-  _bins[3]&=~_dvdOffMask;
-}
 
 Shifter shifter(2,3,4,0);
 AnotherVFD anotherVFD;
@@ -372,7 +454,7 @@ int counter=0;
 
 void timerRoutine(){
   if (counter > 50) {
-    anotherVFD.stepDvdAnimation();
+    anotherVFD.animate();
     digitalWrite(13,pinState13);
     pinState13=~pinState13;
     counter=0;
@@ -386,9 +468,7 @@ void loop(){
  
    if (Serial.available()>0) {
        String stringcoming = Serial.readString();
-
        anotherVFD.tryObey(stringcoming);
-
     }
 
 }
