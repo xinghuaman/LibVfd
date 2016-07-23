@@ -12,7 +12,7 @@ int clockPin = 4;
     unsigned long _decimalPoint;
   
   public:
-    SevenSegments(
+    void begin(
        unsigned long top,
        unsigned long topLeft,
        unsigned long topRight,
@@ -24,9 +24,10 @@ int clockPin = 4;
      );
      
     unsigned long getMaskForDigit(byte digit);
+    unsigned long getMaskForClearing();
 };
 
-SevenSegments::SevenSegments( 
+void SevenSegments::begin (
        unsigned long top,
        unsigned long topLeft,
        unsigned long topRight,
@@ -52,8 +53,17 @@ SevenSegments::SevenSegments(
 
 unsigned long SevenSegments::getMaskForDigit(byte digit) {
   if (digit > 10) return 0L;
-  return _masks[digit];
+  unsigned long ret = _masks[digit];
+  Serial.print("digit -- mask: ");
+  Serial.print(digit);
+  Serial.print(" -- ");
+  Serial.println(ret);
+  return ret;
 };
+
+unsigned long SevenSegments::getMaskForClearing(){
+  return _masks[8] | _decimalPoint;
+}
 
 class SevenSegmentEncoder {
   private:
@@ -62,11 +72,11 @@ class SevenSegmentEncoder {
     byte _radix;
   
   public:
-    SevenSegmentEncoder(SevenSegments* mySegments, byte numSegments, byte radix);
+    void begin(SevenSegments* mySegments, byte numSegments, byte radix);
     void encode(int number, unsigned long* buffer);
 };
 
-SevenSegmentEncoder::SevenSegmentEncoder(SevenSegments* mySegments, byte numSegments, byte radix) {
+void SevenSegmentEncoder::begin(SevenSegments* mySegments, byte numSegments, byte radix) {
   _mySegments = mySegments;
   _numSegments = numSegments;
   _radix = radix;
@@ -122,7 +132,7 @@ void Shifter::write(unsigned long toWrite){
      digitalWrite(latchPin,LOW);
      for (int i=3;i>=0;i--){
        byte theByte = (byte) (toWrite >> (i*8));
-       Serial.println(theByte,HEX);
+       //Serial.println(theByte,HEX);
        shiftOut(dataPin, clockPin, MSBFIRST, theByte);
      }
      digitalWrite(latchPin, HIGH);
@@ -162,8 +172,12 @@ class AnotherVFD {
     
     //Several Grids
     SevenSegments _rightseg;
-    SevenSegments  _leftseg;
-
+    SevenSegments _leftseg;
+    SevenSegments _segments[2];
+    SevenSegments _segments2[2];
+    SevenSegmentEncoder _encoder;
+    SevenSegmentEncoder _encoder2;
+   
     
     //Grid 0
     
@@ -173,51 +187,128 @@ class AnotherVFD {
     
     //Grid 3
     unsigned long _dvd[6];
-  
+    
+   void doSetDigit(int number, int binleft, int binright, int swapem);
+   
   public:
     AnotherVFD();
     unsigned long* getBins();
+   void setDigit(int digit, int number);
 };
 
-AnotherVFD::AnotherVFD() :
-_rightseg(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00),
- _leftseg(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
+AnotherVFD::AnotherVFD()
 {
   _grids[3] = 0x01;
   _grids[2] = 0x02;
   _grids[1] = 0x04;
   _grids[0] = 0x08;
   
+  for(int i=0;i<4;i++)
+    _bins[i]|=_grids[i];
+
+  
   _dvd[0] = 0x10;
+  _rightseg.begin(0x400, 0x100, 0x200, 0x80, 0x20, 0x40, 0x10, 0x00);
+  _leftseg.begin(0x40000, 0x10000, 0x20000, 0x8000, 0x2000, 0x4000, 0x1000, 0x00);
+  _segments[0]=_leftseg;
+  _segments[1]=_rightseg;
+  _encoder.begin(_segments,2,10);
+  _segments2[0]=_leftseg;
+  _segments2[1]=_leftseg;
+  _encoder2.begin(_segments2,2,10);
 }
 
-Shifter shifter(2,3,4,0x0000000F);
+unsigned long* AnotherVFD::getBins() {
+  return _bins;
+}
 
-unsigned long bins[4];
+void AnotherVFD::setDigit(int digit, int number){
+   switch(digit){
+      case 1:
+        doSetDigit(number,0,0,0);
+        break;
+      case 2:
+        doSetDigit(number,1,1,0);
+        break;
+      case 3:
+        _bins[3]&=~_rightseg.getMaskForClearing();
+        _bins[2]&=~_rightseg.getMaskForClearing();
+        unsigned long buffer[2];
+        _encoder2.encode(number,buffer);
+        _bins[2]|=buffer[0];
+        _bins[3]|=buffer[1];
+        break;
+   }
+}
 
-AnotherMultiplexer plexi(&shifter, bins, 4);
+void AnotherVFD::doSetDigit(int number, int binleft, int binright, int swapem){
+
+  _bins[binright]&=~_rightseg.getMaskForClearing();
+  _bins[binleft]&=~_leftseg.getMaskForClearing();
+  
+  unsigned long buffer[2];
+  _encoder.encode(number, buffer);
+  
+  _bins[binleft]|=buffer[0^swapem];
+  _bins[binright]|=buffer[1^swapem];
+  
+}
+
+
+Shifter shifter(2,3,4,0);
+AnotherVFD anotherVFD;
+AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
 
 
 void setup() {
   
   Serial.begin(9600);
-  Timer1.initialize(12000);
+  Timer1.initialize(1000);
   Timer1.attachInterrupt(timerRoutine);
   shifter.begin();
-  
-}
+  pinMode(13,OUTPUT);
+}      
+
+boolean pinState13=false;
+int counter=0;
 
 void timerRoutine(){
-  
+  if (counter > 1000) {
+    digitalWrite(13,pinState13);
+    pinState13=~pinState13;
+    counter=0;
+  } else {
+    counter++;
+  }
+  plexi.cycle();
 }
 
 void loop(){
  
    if (Serial.available()>0) {
        String stringcoming = Serial.readString();
-       unsigned long incoming = strtol(stringcoming.c_str(),NULL,16);
-  
-       shifter.write(incoming);
+
+       if (stringcoming.substring(0,3).equals("d1=")) {
+         Serial.print("Setting digit one =");
+         String numberPart = stringcoming.substring(3);
+         int number = strtoul(numberPart.c_str(),NULL,10);
+         Serial.println(number);
+         anotherVFD.setDigit(1,number);
+       }
+        if (stringcoming.substring(0,3).equals("d2=")) {
+         Serial.print("Setting digit one =");
+         String numberPart = stringcoming.substring(3);
+         int number = strtoul(numberPart.c_str(),NULL,10);
+         Serial.println(number);
+         anotherVFD.setDigit(2,number);
+       }
+       if (stringcoming.substring(0,3).equals("d3=")) {
+         Serial.print("Setting digit one =");
+         String numberPart = stringcoming.substring(3);
+         int number = strtoul(numberPart.c_str(),NULL,10);
+         Serial.println(number);
+         anotherVFD.setDigit(3,number);
+       }
 
     }
 
