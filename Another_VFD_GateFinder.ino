@@ -19,6 +19,7 @@ class Shifter {
     int _dataPin;
     int _latchPin;
     int _clockPin;
+    unsigned long
     
   public:
     Shifter(int dataPin, int latchPin, int clockPin);
@@ -39,12 +40,16 @@ void Shifter::begin(){
   pinMode(clockPin, OUTPUT);
 }
 
-void Shifter::write(byte* buffer, int numBytes){
-  for(byte* toWrite = buffer + numBytes -1; toWrite >= buffer; toWrite--){
+void Shifter::write(unsigned long toWrite){
+ 
      digitalWrite(latchPin,LOW);
-     shiftOut(dataPin, clockPin, MSBFIRST, *toWrite);
+     for (int i=3;i>=0;i--){
+       byte theByte = (byte) (toWrite >> (i*8));
+       Serial.println(theByte,HEX);
+       shiftOut(dataPin, clockPin, MSBFIRST, theByte);
+     }
      digitalWrite(latchPin, HIGH);
-  }
+ 
 }
 
 Shifter shifter(2,3,4);
@@ -60,19 +65,13 @@ void loop(){
  
    if (Serial.available()>0) {
        String stringcoming = Serial.readString();
-       long incoming = strtol(stringcoming.c_str(),NULL,16);
+       unsigned long incoming = strtol(stringcoming.c_str(),NULL,16);
        incoming = ~incoming;
        
-       byte* buffer = (byte*) &incoming;
        
-       for (int i=0;i<4;i++){
-          Serial.print(" Byte ");
-          Serial.print(i);
-          Serial.print(": ");
-          Serial.print(buffer[i],HEX);    
-       }
-       Serial.println();
-       shifter.write(buffer,3);
+       
+       
+       shifter.write(incoming);
        
        //buffer[0]=incoming;
        //Serial.println(buffer[0],HEX);
