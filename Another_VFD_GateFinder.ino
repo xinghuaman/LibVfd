@@ -177,10 +177,24 @@ class SingleFunction {
     
   public:
     void begin(unsigned long*, unsigned long mask, String memonic);
-    boolean tryObey(String command);
     String getMemonic();
     void animate();
+    void setEnabled(boolean enabled);
+    void setBlink();
 };
+
+void SingleFunction::setEnabled(boolean enabled) {
+  _blink = false;
+  if (enabled) {
+    (*_bin)|=_mask;
+  } else {
+    (*_bin)&=~_mask;
+  }
+}
+
+void SingleFunction::setBlink() {
+  _blink=true;
+}
 
 void SingleFunction::begin(unsigned long* targetBin, unsigned long mask, String memonic) {
   _bin=targetBin;
@@ -192,28 +206,41 @@ void SingleFunction::animate() {
   if (_blink) (*_bin)^=_mask;
 }
 
-boolean SingleFunction::tryObey(String command){
+String SingleFunction::getMemonic() {
+  return _memonic;
+}
+
+class SingleFunctionCommandParser {
+  private:
+    SingleFunction* _myFunction;
+  public:
+    void begin(SingleFunction* function);
+    boolean tryObey(String command);
+};
+
+void SingleFunctionCommandParser::begin(SingleFunction* singleFunction) {
+  _myFunction = singleFunction;
+}
+
+boolean SingleFunctionCommandParser::tryObey(String command){
+  String _memonic = _myFunction->getMemonic();
   Serial.println(command.substring(0,_memonic.length()));
   if (_memonic.equals(command.substring(0,_memonic.length()))) {
     String wantsOnOrOff = command.substring(_memonic.length()+1,_memonic.length()+2);
     Serial.println(wantsOnOrOff);
     if (wantsOnOrOff.equals("1")) {
-      (*_bin)|=_mask;
-      _blink=false;
+      _myFunction->setEnabled(true);
     } else if (wantsOnOrOff.equals("b")) {
-      _blink=true;    
+      _myFunction->setBlink();
     } else {
-      _blink=false;
-      (*_bin)&=~_mask;
+      _myFunction->setEnabled(false);
     }
     return true;
   }
   return false;
 };
 
-String SingleFunction::getMemonic() {
-  return _memonic;
-}
+
 
 class DigitCommandParser {
   private:
@@ -307,9 +334,14 @@ class AnotherVFD {
     Animation _tdvd;
     
     SingleFunction _singlefunctions[20];
+    SingleFunctionCommandParser _singleParsers[20];
     int _numSingleFunctions=0;
     
     byte dvdAnimationCounter=0;
+    
+    void addSingleFunction(int bin, unsigned long mask, String memonic);
+    
+  
    
   public:
     AnotherVFD();
@@ -317,6 +349,13 @@ class AnotherVFD {
     void animate();
     void tryObey(String command);
 };
+
+void AnotherVFD::addSingleFunction(int bin, unsigned long mask, String memonic) {
+  _singlefunctions[_numSingleFunctions]=SingleFunction();
+  _singleParsers[_numSingleFunctions]=SingleFunctionCommandParser();
+  _singleParsers[_numSingleFunctions].begin(_singlefunctions+_numSingleFunctions);
+  _singlefunctions[_numSingleFunctions++].begin(_bins+bin,mask,memonic);
+}
 
 AnotherVFD::AnotherVFD()
 {
@@ -349,8 +388,6 @@ AnotherVFD::AnotherVFD()
   _parsers[2] = DigitCommandParser();
   _parsers[2].begin("digit3",_encoder+2);
   
-
-  
   _tdvd.begin("animate",0x3F0);
   _tdvd.addStep(0x10,_bins+0);
   _tdvd.addStep(0x20,_bins+0);
@@ -358,56 +395,30 @@ AnotherVFD::AnotherVFD()
   _tdvd.addStep(0x80,_bins+0);
   _tdvd.addStep(0x100,_bins+0);
   _tdvd.addStep(0x200,_bins+0);
-  
-  //Gate 1
-  //unsigned long v = 0x10;
-  //unsigned long cd= 0x20;
-  //unsigned long p = 0x40;
-  //unsigned long commas = 0x80;
-  //unsigned long speakerLeft = 0x200;
-  //unsigned long speakerRight = 0x400;
-  //unsigned long middleDash = 0x100;
-  //unsigned long _dvdcenter = 0x400;
-  //unsigned long _dvdOffMask = 0x3F0;
-  
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+0,0x400,"dvdcenter");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+0,0x800,"3.0");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+0,0x80000,"\\");
+ 
+  addSingleFunction(0,0x400,"dvdcenter");
+ 
+  addSingleFunction(0,0x800,"3.0");
+  addSingleFunction(0,0x80000,"\\");
   
   
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x10,"v");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x20,"cd");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x40,"p");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x80,"commas");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x100,"dash");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x200,"speakerl");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x400,"speakerr");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x800,"S");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+1,0x80000,"N");
+  addSingleFunction(1,0x10,"v");
+  addSingleFunction(1,0x20,"cd");
+  addSingleFunction(1,0x40,"p");
+  addSingleFunction(1,0x80,"commas");
+  addSingleFunction(1,0x100,"dash");
+  addSingleFunction(1,0x200,"speakerl");
+  addSingleFunction(1,0x400,"speakerr");
+  addSingleFunction(1,0x800,"S");
+  addSingleFunction(1,0x80000,"N");
   
   
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+2,0x800,"pbc");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+2,0x80000,"dvd");
+  addSingleFunction(2,0x800,"pbc");
+  addSingleFunction(2,0x80000,"dvd");
   
   
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+3,0x800,"mp3");
-  _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singlefunctions[_numSingleFunctions++].begin(_bins+3,0x80000,":");
+  addSingleFunction(3,0x800,"mp3");addSingleFunction
+  addSingleFunction(3,0x80000,":");
 
   
 
@@ -415,7 +426,7 @@ AnotherVFD::AnotherVFD()
 
 void AnotherVFD::tryObey(String command) {
   for(int i=0;i<_numSingleFunctions;i++) {
-    if (_singlefunctions[i].tryObey(command)) return;
+    if (_singleParsers[i].tryObey(command)) return;
   }
   for(int i=0;i<3;i++) {
     if (_parsers[i].tryObey(command)) return;
