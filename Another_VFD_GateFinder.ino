@@ -1,4 +1,5 @@
 #include <TimerOne.h>
+#include <Bounce2.h>
 
 int dataPin = 2;
 int latchPin = 3;
@@ -164,7 +165,17 @@ AnotherMultiplexer::AnotherMultiplexer(Shifter* shifter, unsigned long* bins, by
 };
 
 void AnotherMultiplexer::cycle() {
-  _shifter->write(_bins[_currentBin++]);
+  unsigned long toWrite = _bins[_currentBin++];
+  unsigned long mirrored=0;
+  for (int i=0;i<20;i++) {
+    
+    if ((toWrite & 0x1) > 0) 
+      mirrored|=0x01;
+    toWrite>>=1;
+    if ((i+1)<20) mirrored<<=1;
+  }
+  
+  _shifter->write(mirrored);
   if (_currentBin >= _numBins) _currentBin = 0;
 }
 
@@ -370,7 +381,7 @@ AnotherVFD::AnotherVFD()
   _encoder[0] = SevenSegmentEncoder();
   _encoder[0].begin(10);
   _encoder[0].addSegment(&_rightseg,_bins+0);
-  _encoder[0].addSegment(&_rightseg,_bins+1);
+  _encoder[0].addSegment(&_rightseg,_bins+1);amiga500 HDMI
   _parsers[0] = DigitCommandParser();
   _parsers[0].begin("digit1",_encoder+0);
   
@@ -417,10 +428,9 @@ AnotherVFD::AnotherVFD()
   addSingleFunction(2,0x80000,"dvd");
   
   
-  addSingleFunction(3,0x800,"mp3");addSingleFunction
+  addSingleFunction(3,0x800,"mp3");
   addSingleFunction(3,0x80000,":");
 
-  
 
 };
 
