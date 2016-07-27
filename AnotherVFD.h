@@ -16,12 +16,10 @@ class AnotherVFD {
     SevenSegments _rightseg;
     SevenSegments _leftseg;
     SevenSegmentEncoder _encoder[3];
-    DigitCommandParser _parsers[3];
    
     Animation _tdvd;
     
     SingleFunction _singlefunctions[20];
-    SingleFunctionCommandParser _singleParsers[20];
     int _numSingleFunctions=0;
     
     byte dvdAnimationCounter=0;
@@ -34,7 +32,7 @@ class AnotherVFD {
     AnotherVFD();
     unsigned long* getBins();
     void animate();
-    void tryObey(String command);
+    AnimatableFunction* getFunctionFor(String memonic);
 };
 
 #endif

@@ -10,6 +10,7 @@ class AnimatableFunction {
     boolean _blink;
     
   public:
+    virtual String getType();
     virtual void begin(String memonic);
     virtual String getMemonic();
     virtual void animate()=0;

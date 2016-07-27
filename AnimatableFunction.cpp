@@ -2,7 +2,7 @@
 
 
 void AnimatableFunction::setEnabled(boolean enabled) {
-  _blink = false;
+  _blink=false;
 }
 
 void AnimatableFunction::setBlink() {
@@ -19,4 +19,8 @@ String AnimatableFunction::getMemonic() {
 
 boolean AnimatableFunction::isBlink() {
   return _blink;
+}
+
+String AnimatableFunction::getType() {
+  return "AnimatableFunction";
 }

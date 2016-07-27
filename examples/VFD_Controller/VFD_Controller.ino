@@ -4,7 +4,7 @@
 #include <Shifter.h>
 #include <AnotherMultiplexer.h>
 #include <MirroringBitManipulator.h>
-
+#include <DigitCommandParser.h>
 
 int dataPin = 2;
 int latchPin = 3;
@@ -42,11 +42,46 @@ void timerRoutine(){
   plexi.cycle();
 }
 
+void nocomprende(String command, String cause) {
+  Serial.print("No comprende: ");
+  Serial.print(command);
+  Serial.print(" ");
+  Serial.println(cause);
+}
+
 void loop(){
  
    if (Serial.available()>0) {
-       String stringcoming = Serial.readString();
-       anotherVFD.tryObey(stringcoming);
+       String command = Serial.readString();
+       DigitCommandParser parser;
+       if (!parser.parse(command)) {
+         nocomprende(command,"did not parse!");
+	 return;
+       }
+
+       AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic());
+       if (func == NULL) {
+         nocomprende(command, "Unknown function!");
+	 return;
+       }
+
+       if (parser.isOn())
+         func->setEnabled(true);
+       else if (parser.isOff())
+         func->setEnabled(false);
+       else if (parser.isBlink())
+         func->setBlink();
+       else if (parser.isNumber()) {
+          if (func->getType().equals("SevenSegmentEncoder")) {
+	    SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
+	    en->encode(parser.getNumber());
+	  } else {
+	    nocomprende(command, "It's not a digit!");
+	  }
+       } else {
+         nocomprende(command,"Panic!");
+       }
+	 
     }
 
 }

@@ -2,8 +2,6 @@
 
 void AnotherVFD::addSingleFunction(int bin, unsigned long mask, String memonic) {
   _singlefunctions[_numSingleFunctions]=SingleFunction();
-  _singleParsers[_numSingleFunctions]=SingleFunctionCommandParser();
-  _singleParsers[_numSingleFunctions].begin(_singlefunctions+_numSingleFunctions);
   _singlefunctions[_numSingleFunctions++].begin(_bins+bin,mask,memonic);
 }
 
@@ -18,25 +16,19 @@ AnotherVFD::AnotherVFD()
   _rightseg.begin(0x1000, 0x4000, 0x2000, 0x8000, 0x20000, 0x10000, 0x40000, 0x00);
   
   _encoder[0] = SevenSegmentEncoder();
-  _encoder[0].begin(10);
+  _encoder[0].begin(10,"digit1");
   _encoder[0].addSegment(&_rightseg,_bins+0);
   _encoder[0].addSegment(&_rightseg,_bins+1);
-  _parsers[0] = DigitCommandParser();
-  _parsers[0].begin("digit1",_encoder+0);
   
   _encoder[1] = SevenSegmentEncoder();
-  _encoder[1].begin(10);
+  _encoder[1].begin(10,"digit2");
   _encoder[1].addSegment(&_leftseg, _bins+2);
   _encoder[1].addSegment(&_rightseg,_bins+2);
-  _parsers[1] = DigitCommandParser();
-  _parsers[1].begin("digit2",_encoder+1);
   
   _encoder[2] = SevenSegmentEncoder();
-  _encoder[2].begin(10);
+  _encoder[2].begin(10,"digit3");
   _encoder[2].addSegment(&_leftseg, _bins+3);
   _encoder[2].addSegment(&_rightseg,_bins+3);
-  _parsers[2] = DigitCommandParser();
-  _parsers[2].begin("digit3",_encoder+2);
   
   _tdvd.begin("animate",0x3F0);
   _tdvd.addStep(0x10,_bins+0);
@@ -73,20 +65,11 @@ AnotherVFD::AnotherVFD()
 
 };
 
-void AnotherVFD::tryObey(String command) {
-  for(int i=0;i<_numSingleFunctions;i++) {
-    if (_singleParsers[i].tryObey(command)) return;
-  }
-  for(int i=0;i<3;i++) {
-    if (_parsers[i].tryObey(command)) return;
-  }
-  Serial.print("Unrecognized: ");
-  Serial.print(command);
-};
-
 unsigned long* AnotherVFD::getBins() {
   return _bins;
 };
+
+
 
 void AnotherVFD::animate(){
   _tdvd.animate();
@@ -94,3 +77,17 @@ void AnotherVFD::animate(){
     _singlefunctions[i].animate();
   }
 };
+
+AnimatableFunction* AnotherVFD::getFunctionFor(String memonic) {
+  for(int i=0;i<_numSingleFunctions;i++){
+    if (_singlefunctions[i].getMemonic().equals(memonic))
+      return _singlefunctions+i;
+  }
+  if (_tdvd.getMemonic().equals(memonic))
+     return &_tdvd;
+  for(int i=0;i<3;i++){
+    if (_encoder[i].getMemonic().equals(memonic))
+      return _encoder+i;
+  }
+  return NULL;
+}

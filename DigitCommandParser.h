@@ -1,17 +1,26 @@
 #ifndef DigitCommandParser_h
 #define DigitCommandParser_h
 
-#include "SevenSegmentEncoder.h"
+#include <Arduino.h>
 
 class DigitCommandParser {
   private:
     String _memonic;
-    SevenSegmentEncoder* _encoder;
+    boolean _isOff;
+    boolean _isNumber;
+    boolean _isBlink;
+    boolean _isOn;
+    int _number;
   
   public:
-    void begin(String memonic, SevenSegmentEncoder* encoder);
-    boolean tryObey(String command);
+    DigitCommandParser();
+    boolean parse(String command);
     String getMemonic();
+    boolean isOff();
+    boolean isNumber();
+    boolean isBlink();
+    boolean isOn();
+    int getNumber();
 };
 
 #endif

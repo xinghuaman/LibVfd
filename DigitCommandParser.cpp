@@ -1,32 +1,58 @@
 #include "DigitCommandParser.h"
-#include "SevenSegmentEncoder.h"
 
-void DigitCommandParser::begin(String memonic, SevenSegmentEncoder *encoder) {
-  _memonic = memonic;
-  _encoder = encoder;
+DigitCommandParser::DigitCommandParser() {
+ _isOff=false;
+ _isOn=false;
+ _isBlink=false;
+ _number=0;
+ _isNumber=false;
 }
 
-boolean DigitCommandParser::tryObey(String command) {
-  if (command.substring(0,_memonic.length()).equals(_memonic)) {
-     Serial.print("Command: ");
-     Serial.println(command);
-     String numberPart = command.substring(_memonic.length()+1,command.length()-1);
-     Serial.print("Numberpart: ");
-     Serial.println(numberPart);
-     if (numberPart.equals("off")) {
-       
-     } else {
-       int number = strtoul(numberPart.c_str(),NULL,10);
-       Serial.println(number);
-       Serial.println((unsigned long)_encoder,HEX);
-       _encoder->encode(number);
-    }
-    return true;
+boolean DigitCommandParser::parse(String command) {
+  int index = command.indexOf('=');
+  if (index < 1) return false;
+  if (index>=command.length()-1) return false;
+  _memonic = command.substring(0,index);
+  String instruction = command.substring(index+1);
+  instruction.trim();
+  Serial.print("Command: ");
+  Serial.println(command);
+  Serial.print("Numberpart: ");
+  Serial.println(instruction);
+  if (instruction.equals("off")) {
+    _isOff=true;  
+  } else if (instruction.equals("on")) {
+    _isOn=true;
+  } else if (instruction.equals("blink")) {
+    _isBlink=true;
+  } else {
+   _number = strtoul(instruction.c_str(),NULL,10);
+    Serial.println(_number);
+   _isNumber=true;
   }
-  return false;
-  
+  return true;
 };
 
 String DigitCommandParser::getMemonic() {
   return _memonic;
+}
+
+boolean DigitCommandParser::isOff() {
+  return _isOff;
+}
+
+boolean DigitCommandParser::isOn() {
+  return _isOn;
+}
+
+boolean DigitCommandParser::isNumber() {
+  return _isNumber;
+}
+
+boolean DigitCommandParser::isBlink() {
+  return _isBlink;
+}
+
+int DigitCommandParser::getNumber() {
+  return _number;
 }

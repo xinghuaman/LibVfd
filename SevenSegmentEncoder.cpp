@@ -1,6 +1,7 @@
 #include "SevenSegmentEncoder.h"
 
-void SevenSegmentEncoder::begin(byte radix) {
+void SevenSegmentEncoder::begin(byte radix, String memonic) {
+   AnimatableFunction::begin(memonic);
   _radix = radix;
 };
 
@@ -27,3 +28,22 @@ void SevenSegmentEncoder::encode(int number) {
   }
   //TODO: Handle overflow
 };
+
+void SevenSegmentEncoder::animate() {
+  //TODO: Blink the Number?
+}
+
+void SevenSegmentEncoder::setEnabled(boolean enabled) {
+  AnimatableFunction::setEnabled(enabled);
+  if (enabled) {
+    encode(0);
+  } else {
+    for (int i=_numSegments-1; i>=0; i--) {
+    	(*_myBins[i])&=~_mySegments[i]->getMaskForClearing();
+    }
+  }
+}
+
+String SevenSegmentEncoder::getType() {
+  return "SevenSegmentEncoder";
+}
