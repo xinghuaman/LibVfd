@@ -8,7 +8,6 @@ class Shifter {
     int _dataPin;
     int _latchPin;
     int _clockPin;
-    unsigned long _invertMask;
     BitManipulator* _manipulator;
     
   public:

@@ -19,9 +19,8 @@ void Shifter::write(unsigned long toWrite){
      toWrite=_manipulator->manipulate(toWrite);
   
      digitalWrite(_latchPin,LOW);
-     for (int i=2;i>=0;i--){
+     for (int i=3;i>=0;i--){
        byte theByte = (byte) (toWrite >> (i*8));
-       //Serial.println(theByte,HEX);
        shiftOut(_dataPin, _clockPin, MSBFIRST, theByte);
      }
      digitalWrite(_latchPin, HIGH);
