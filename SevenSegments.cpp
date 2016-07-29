@@ -26,8 +26,8 @@ void SevenSegments::begin (
 };
 
 unsigned long SevenSegments::getMaskForDigit(byte digit) {
-  Serial.print("Mask for Digit: ");
-  Serial.println(digit);
+  //Serial.print("Mask for Digit: ");
+  //Serial.println(digit);
   if (digit > 10) return 0L;
   unsigned long ret = _masks[digit];
   return ret;

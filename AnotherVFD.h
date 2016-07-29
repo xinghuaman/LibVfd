@@ -1,38 +1,42 @@
 #ifndef AnotherVFD_h
 #define AnotherVFD_h
 
+#include "AbstractVFD.h"
 #include "SevenSegments.h"
-#include "SevenSegmentEncoder.h"
-#include "DigitCommandParser.h"
-
 #include "Animation.h"
 #include "SingleFunction.h"
-#include "SingleFunctionCommandParser.h"
+#include "SevenSegmentEncoder.h"
 
-class AnotherVFD {
-  private:
-    unsigned long _bins[4];
-    
+
+class AnotherVFD : public AbstractVFD {
+  public:
     SevenSegments _rightseg;
     SevenSegments _leftseg;
-    SevenSegmentEncoder _encoder[3];
    
     Animation _tdvd;
-    
-    SingleFunction _singlefunctions[20];
-    int _numSingleFunctions=0;
-    
-    byte dvdAnimationCounter=0;
-    
-    void addSingleFunction(int bin, unsigned long mask, String memonic);
-    
-  
+
+    SevenSegmentEncoder digit1;
+    SevenSegmentEncoder digit2;
+    SevenSegmentEncoder digit3;
+
+    SingleFunction _dvdcenter;
+    SingleFunction _threezero;
+    SingleFunction _backslash;
+    SingleFunction _v;
+    SingleFunction _cd;
+    SingleFunction _p;
+    SingleFunction _commas;
+    SingleFunction _dash;
+    SingleFunction _speakerl;
+    SingleFunction _speakerr;
+    SingleFunction _s;
+    SingleFunction _N;
+    SingleFunction _pbc;
+    SingleFunction _dvd;
+    SingleFunction _mp3;
+    SingleFunction _doublepoint;
    
-  public:
     AnotherVFD();
-    unsigned long* getBins();
-    void animate();
-    AnimatableFunction* getFunctionFor(String memonic);
 };
 
 #endif

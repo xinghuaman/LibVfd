@@ -10,7 +10,7 @@ class SingleFunction : public AnimatableFunction {
     unsigned long _mask;
     
   public:
-    virtual void begin(unsigned long*, unsigned long mask, String memonic);
+    virtual void begin(unsigned long* bin, unsigned long mask, String memonic);
     virtual void animate();
     virtual void setEnabled(boolean enabled);
 };

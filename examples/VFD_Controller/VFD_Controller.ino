@@ -1,20 +1,27 @@
 #include <TimerOne.h>
 #include <Bounce2.h>
 #include <AnotherVFD.h>
+#include <AbstractVFD.h>
 #include <Shifter.h>
 #include <AnotherMultiplexer.h>
 #include <MirroringBitManipulator.h>
 #include <DigitCommandParser.h>
+#include <CountingLightShow.h>
 
 int dataPin = 2;
 int latchPin = 3;
 int clockPin = 4;
+int testPin = 9;
 
 
 MirroringBitManipulator manipulator;
 Shifter shifter;
 AnotherVFD anotherVFD;
 AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
+CountingLightShow show1;
+boolean lightShowState=false;
+
+Bounce debouncer;
 
 
 void setup() {
@@ -25,6 +32,12 @@ void setup() {
   manipulator.setMirroring(0x01,20);
   shifter.begin(2,3,4,&manipulator);
   pinMode(13,OUTPUT);
+  pinMode(testPin, INPUT_PULLUP);
+  debouncer.attach(testPin);
+  debouncer.interval(500);
+  show1.addDigit(&(anotherVFD.digit1), 1);
+  show1.addDigit(&(anotherVFD.digit2), 2);
+  show1.addDigit(&(anotherVFD.digit3), 3);
 }      
 
 boolean pinState13=false;
@@ -35,6 +48,7 @@ void timerRoutine(){
     anotherVFD.animate();
     digitalWrite(13,pinState13);
     pinState13=~pinState13;
+    show1.animate();
     counter=0;
   } else {
     counter++;
@@ -43,13 +57,22 @@ void timerRoutine(){
 }
 
 void nocomprende(String command, String cause) {
-  Serial.print("No comprende: ");
+  Serial.print("Hein? No comprende! ");
   Serial.print(command);
   Serial.print(" ");
   Serial.println(cause);
 }
 
 void loop(){
+   debouncer.update();
+
+   if (debouncer.fell()) {
+    lightShowState = !lightShowState;
+    show1.enable(lightShowState);
+    if (lightShowState) anotherVFD._tdvd.setBlink();
+    else anotherVFD._tdvd.setEnabled(false);
+     //anotherVFD.lightShow(lightShowState);
+   }
  
    if (Serial.available()>0) {
        String command = Serial.readString();

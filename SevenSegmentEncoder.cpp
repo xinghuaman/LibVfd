@@ -12,15 +12,15 @@ void SevenSegmentEncoder::addSegment(SevenSegments* segment, unsigned long* bin)
 }
 
 void SevenSegmentEncoder::encode(int number) {
-  Serial.print("Trying to encode: ");
-  Serial.println(number);
+  //Serial.print("Trying to encode: ");
+  //Serial.println(number);
   if (number < 0 ) {
     number = -number;
     //TODO: Handle numbersign.
   }
   
   for (int i=_numSegments-1; i>=0; i--) {
-    Serial.println(i);
+    //Serial.println(i);
     byte digit = number % _radix;
     number = number / _radix;
     (*_myBins[i])&=~_mySegments[i]->getMaskForClearing();
