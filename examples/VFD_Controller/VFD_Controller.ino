@@ -19,10 +19,9 @@ Shifter shifter;
 AnotherVFD anotherVFD;
 AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
 CountingLightShow show1;
-boolean lightShowState=false;
-
 Bounce debouncer;
 
+boolean lightShowState=false;
 
 void setup() {
   
@@ -64,47 +63,46 @@ void nocomprende(String command, String cause) {
 }
 
 void loop(){
-   debouncer.update();
+  debouncer.update();
 
-   if (debouncer.fell()) {
+  if (debouncer.fell()) {
     lightShowState = !lightShowState;
     show1.enable(lightShowState);
     if (lightShowState) anotherVFD._tdvd.setBlink();
     else anotherVFD._tdvd.setEnabled(false);
-     //anotherVFD.lightShow(lightShowState);
-   }
+  }
  
-   if (Serial.available()>0) {
-       String command = Serial.readString();
-       DigitCommandParser parser;
-       if (!parser.parse(command)) {
-         nocomprende(command,"did not parse!");
-	 return;
-       }
-
-       AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic());
-       if (func == NULL) {
-         nocomprende(command, "Unknown function!");
-	 return;
-       }
-
-       if (parser.isOn())
-         func->setEnabled(true);
-       else if (parser.isOff())
-         func->setEnabled(false);
-       else if (parser.isBlink())
-         func->setBlink();
-       else if (parser.isNumber()) {
-          if (func->getType().equals("SevenSegmentEncoder")) {
-	    SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
-	    en->encode(parser.getNumber());
-	  } else {
-	    nocomprende(command, "It's not a digit!");
-	  }
-       } else {
-         nocomprende(command,"Panic!");
-       }
-	 
+  if (Serial.available()>0) {
+    String command = Serial.readString();
+    DigitCommandParser parser;
+    if (!parser.parse(command)) {
+      nocomprende(command,"did not parse!");
+      return;
     }
+
+    AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic());
+    if (func == NULL) {
+      nocomprende(command, "Unknown function!");
+       return;
+    }
+
+    if (parser.isOn())
+       func->setEnabled(true);
+    else if (parser.isOff())
+       func->setEnabled(false);
+    else if (parser.isBlink())
+       func->setBlink();
+    else if (parser.isNumber()) {
+       if (func->getType().equals("SevenSegmentEncoder")) {
+         SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
+         en->encode(parser.getNumber());
+       } else {
+         nocomprende(command, "It's not a digit!");
+       }
+    } else {
+      nocomprende(command,"Panic!");
+    }
+  
+}
 
 }
