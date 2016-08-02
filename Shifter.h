@@ -2,7 +2,12 @@
 #define Shifter_h
 
 #include "BitManipulator.h"
-
+/**
+ * The Shifter is to transport data to a 74xx595 latching
+ * shift register. It can do 'last-minute' transformations
+ * to the data by filtering it through an optional bit-
+ * manipulator.
+ */
 class Shifter {
   private:
     int _dataPin;

@@ -16,7 +16,8 @@ void Shifter::begin(int dataPin, int latchPin, int clockPin, BitManipulator* man
 
 void Shifter::write(unsigned long toWrite){
  
-     toWrite=_manipulator->manipulate(toWrite);
+     if (_manipulator != NULL)
+     	toWrite=_manipulator->manipulate(toWrite);
   
      digitalWrite(_latchPin,LOW);
      for (int i=3;i>=0;i--){

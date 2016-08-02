@@ -7,6 +7,8 @@
 #include <MirroringBitManipulator.h>
 #include <DigitCommandParser.h>
 #include <CountingLightShow.h>
+#include <LarsonLightShow.h>
+#include <LightSwitchCallback.h>
 
 int dataPin = 2;
 int latchPin = 3;
@@ -19,6 +21,7 @@ Shifter shifter;
 AnotherVFD anotherVFD;
 AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
 CountingLightShow show1;
+LarsonLightShow show2;
 Bounce debouncer;
 
 boolean lightShowState=false;
@@ -37,6 +40,9 @@ void setup() {
   show1.addDigit(&(anotherVFD.digit1), 1);
   show1.addDigit(&(anotherVFD.digit2), 2);
   show1.addDigit(&(anotherVFD.digit3), 3);
+
+  show2.setVfd(&anotherVFD);
+  show2.begin();
 }      
 
 boolean pinState13=false;
@@ -48,6 +54,7 @@ void timerRoutine(){
     digitalWrite(13,pinState13);
     pinState13=~pinState13;
     show1.animate();
+    show2.animate();
     counter=0;
   } else {
     counter++;
@@ -68,6 +75,7 @@ void loop(){
   if (debouncer.fell()) {
     lightShowState = !lightShowState;
     show1.enable(lightShowState);
+    show2.enable(lightShowState);
     if (lightShowState) anotherVFD._tdvd.setBlink();
     else anotherVFD._tdvd.setEnabled(false);
   }
