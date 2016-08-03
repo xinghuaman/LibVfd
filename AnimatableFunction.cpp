@@ -14,6 +14,8 @@ void AnimatableFunction::begin(String memonic) {
 };
 
 String AnimatableFunction::getMemonic() {
+  Serial.print("getMemonic(): ");
+  Serial.println(_memonic);
   return _memonic;
 }
 

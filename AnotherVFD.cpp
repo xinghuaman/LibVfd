@@ -54,9 +54,9 @@ AnotherVFD::AnotherVFD()
   addFunc(&_commas);
   _dash.begin(_bins+1,0x100,"dash");
   addFunc(&_dash);
-  _speakerl.begin(_bins+1,0x200,"speakerl");
+  _speakerl.begin(_bins+1,0x200,"spl");
   addFunc(&_speakerl);
-  _speakerr.begin(_bins+1,0x400,"speakerr");
+  _speakerr.begin(_bins+1,0x400,"spr");
   addFunc(&_speakerr);
   _s.begin(_bins+1,0x800,"s");
   addFunc(&_s);
@@ -70,7 +70,7 @@ AnotherVFD::AnotherVFD()
 
   _mp3.begin(_bins+3,0x800,"mp3");
   addFunc(&_mp3);
-  _doublepoint.begin(_bins+3,0x80000,"doublepoint");
+  _doublepoint.begin(_bins+3,0x80000,"dp");
   addFunc(&_doublepoint);
 
 };

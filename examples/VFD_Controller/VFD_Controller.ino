@@ -63,10 +63,18 @@ void timerRoutine(){
 }
 
 void nocomprende(String command, String cause) {
-  Serial.print("Hein? No comprende! ");
+  Serial.print("Hein? ");
   Serial.print(command);
   Serial.print(" ");
   Serial.println(cause);
+  Serial.println("Valid commands:");
+  AnimatableFunction** funcs = anotherVFD.getFunctions();
+  for(int i=0;i<anotherVFD.getNumFunctions();i++) {
+  	Serial.print(funcs[i]->getMemonic());
+	Serial.print(" (");
+	Serial.print(funcs[i]->getType());
+	Serial.println(")");
+  }
 }
 
 void loop(){
@@ -84,13 +92,13 @@ void loop(){
     String command = Serial.readString();
     DigitCommandParser parser;
     if (!parser.parse(command)) {
-      nocomprende(command,"did not parse!");
+      nocomprende(command,"no parse!");
       return;
     }
 
     AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic());
     if (func == NULL) {
-      nocomprende(command, "Unknown function!");
+      nocomprende(command, "Unk. func.!");
        return;
     }
 
@@ -105,7 +113,7 @@ void loop(){
          SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
          en->encode(parser.getNumber());
        } else {
-         nocomprende(command, "It's not a digit!");
+         nocomprende(command, "No digit!");
        }
     } else {
       nocomprende(command,"Panic!");
