@@ -2,7 +2,6 @@
 #define AbstractVFD_h
 
 #include "AnimatableFunction.h"
-#include <Arduino.h>
 
 class AbstractVFD {
   protected:
@@ -21,7 +20,7 @@ class AbstractVFD {
 
     virtual void animate();
 
-    AnimatableFunction* getFunctionFor(String memonic);
+    AnimatableFunction* getFunctionFor(const char* const memonic);
     
     int getNumFunctions();
     AnimatableFunction** getFunctions();

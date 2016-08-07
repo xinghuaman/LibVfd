@@ -9,12 +9,18 @@
 #include <CountingLightShow.h>
 #include <LarsonLightShow.h>
 #include <LightSwitchCallback.h>
+#include <MemoryFree.h>
 
-int dataPin = 2;
-int latchPin = 3;
-int clockPin = 4;
-int testPin = 9;
-
+const int dataPin = 2;
+const int latchPin = 3;
+const int clockPin = 4;
+const int testPin = 9;
+const char global_noparse[] PROGMEM = "Does not parse!";
+const char global_unkfunc[] PROGMEM = "Unknown Function!";
+const char global_sevenseg[] PROGMEM = "SevenSegmentEncoder";
+const char global_nodig[] PROGMEM = "It's not a digit!";
+const char global_unknerr[] PROGMEM = "Unknown Error!";
+char buffer[30];
 
 MirroringBitManipulator manipulator;
 Shifter shifter;
@@ -62,20 +68,24 @@ void timerRoutine(){
   plexi.cycle();
 }
 
-void nocomprende(String command, String cause) {
-  Serial.print("Hein? ");
+void nocomprende(const char * const command,const char * const cause) {
+  Serial.print(F("Hein? "));
   Serial.print(command);
-  Serial.print(" ");
+  Serial.print(F(" "));
   Serial.println(cause);
-  Serial.println("Valid commands:");
+  Serial.println(F("Valid commands:"));
   AnimatableFunction** funcs = anotherVFD.getFunctions();
   for(int i=0;i<anotherVFD.getNumFunctions();i++) {
-  	Serial.print(funcs[i]->getMemonic());
-	Serial.print(" (");
-	Serial.print(funcs[i]->getType());
-	Serial.println(")");
+  	funcs[i]->getMemonic(buffer);
+  	Serial.print(buffer);
+	Serial.print(F(" ("));
+	funcs[i]->getType(buffer);
+	Serial.print(buffer);
+	Serial.println(F(")"));
   }
 }
+
+
 
 void loop(){
   debouncer.update();
@@ -89,17 +99,22 @@ void loop(){
   }
  
   if (Serial.available()>0) {
+    Serial.print(F("Free Memory: "));
+    Serial.println(freeMemory());
+
     String command = Serial.readString();
     DigitCommandParser parser;
     if (!parser.parse(command)) {
-      nocomprende(command,"no parse!");
+      strcpy_P(buffer, global_noparse);
+      nocomprende(command.c_str(),buffer);
       return;
     }
 
-    AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic());
+    AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic().c_str());
     if (func == NULL) {
-      nocomprende(command, "Unk. func.!");
-       return;
+      strcpy_P(buffer, global_unkfunc);
+      nocomprende(command.c_str(), buffer);
+      return;
     }
 
     if (parser.isOn())
@@ -109,15 +124,21 @@ void loop(){
     else if (parser.isBlink())
        func->setBlink();
     else if (parser.isNumber()) {
-       if (func->getType().equals("SevenSegmentEncoder")) {
+       func->getType(buffer);
+       if (strcmp_P(buffer, global_sevenseg) == 0 ) {
          SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
          en->encode(parser.getNumber());
        } else {
-         nocomprende(command, "No digit!");
+         strcpy_P(buffer, global_nodig);
+         nocomprende(command.c_str(), buffer);
        }
     } else {
-      nocomprende(command,"Panic!");
+      strcpy_P(buffer, global_unknerr);
+      nocomprende(command.c_str(),global_unknerr);
     }
+
+    Serial.print(F("Free Memory: "));
+    Serial.println(freeMemory());
   
 }
 

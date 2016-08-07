@@ -1,21 +1,23 @@
 #ifndef AnimatableFunction_h
 #define AnimatableFunction_h
 
-#include <Arduino.h>
+#include <avr/pgmspace.h>
+
+const char txt_AnimatableFunction[] PROGMEM = "AnimatableFunction";
 
 class AnimatableFunction {
   private:
-    String _memonic;
+    char* _memonic;
     unsigned long _mask;
-    boolean _blink;
+    bool _blink;
     
   public:
-    virtual String getType();
-    virtual void begin(String memonic);
-    virtual String getMemonic();
+    virtual void getType(char* buffer);
+    virtual void begin(const char * const memonic);
+    virtual void getMemonic(char* buffer);
     virtual void animate()=0;
-    virtual void setEnabled(boolean enabled);
+    virtual void setEnabled(bool enabled);
     virtual void setBlink();
-    virtual boolean isBlink();
+    virtual bool isBlink();
 };
 #endif

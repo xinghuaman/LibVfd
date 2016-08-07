@@ -1,6 +1,7 @@
 #include "SevenSegmentEncoder.h"
+#include <avr/pgmspace.h>
 
-void SevenSegmentEncoder::begin(byte radix, String memonic) {
+void SevenSegmentEncoder::begin(byte radix, const char* const memonic) {
    AnimatableFunction::begin(memonic);
   _radix = radix;
 };
@@ -44,6 +45,6 @@ void SevenSegmentEncoder::setEnabled(boolean enabled) {
   }
 }
 
-String SevenSegmentEncoder::getType() {
-  return "SevenSegmentEncoder";
+void SevenSegmentEncoder::getType(char* buffer) {
+  strcpy_P(buffer,txt_SevenSegmentEncoder);
 }

@@ -4,6 +4,10 @@
 #include "SevenSegments.h"
 #include "AnimatableFunction.h"
 
+#include <avr/pgmspace.h>
+
+const char txt_SevenSegmentEncoder[] PROGMEM = "SevenSegmentEncoder";
+
 class SevenSegmentEncoder : public AnimatableFunction {
   private:
     SevenSegments* _mySegments[5];
@@ -13,8 +17,8 @@ class SevenSegmentEncoder : public AnimatableFunction {
     byte _radix;
   
   public:
-    virtual String getType();
-    virtual void begin(byte radix, String memonic);
+    virtual void getType(char* buffer);
+    virtual void begin(byte radix, const char* const memonic);
     virtual void addSegment(SevenSegments* segment, unsigned long* bin);
     virtual void encode(int number);
     virtual void setEnabled(boolean enabled);

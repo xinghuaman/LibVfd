@@ -1,7 +1,7 @@
 #include "SingleFunction.h"
 
 
-void SingleFunction::setEnabled(boolean enabled) {
+void SingleFunction::setEnabled(bool enabled) {
   AnimatableFunction::setEnabled(enabled);
   if (enabled) {
     (*_bin)|=_mask;
@@ -10,7 +10,8 @@ void SingleFunction::setEnabled(boolean enabled) {
   }
 }
 
-void SingleFunction::begin(unsigned long* targetBin, unsigned long mask, String memonic) {
+void SingleFunction::begin(unsigned long* targetBin, unsigned long mask,
+const char* const memonic) {
    AnimatableFunction::begin(memonic);
   _bin=targetBin;
   _mask=mask;

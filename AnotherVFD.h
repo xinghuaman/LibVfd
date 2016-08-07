@@ -6,6 +6,28 @@
 #include "Animation.h"
 #include "SingleFunction.h"
 #include "SevenSegmentEncoder.h"
+#include <avr/pgmspace.h>
+
+const char global_digit1[] PROGMEM = "digit1";
+const char global_digit2[] PROGMEM = "digit2";
+const char global_digit3[] PROGMEM = "digit3";
+const char global_ani[] PROGMEM = "ani";
+const char global_dvdcenter[] PROGMEM = "dvdcenter";
+const char global_threezero[] PROGMEM = "threezero";
+const char global_backslash[] PROGMEM = "blackslash";
+const char global_v[] PROGMEM = "v";
+const char global_cd[] PROGMEM = "cd";
+const char global_p[] PROGMEM = "p";
+const char global_commas[] PROGMEM = "commas";
+const char global_dash[] PROGMEM = "dash";
+const char global_spl[] PROGMEM = "spl";
+const char global_spr[] PROGMEM = "spr";
+const char global_s[] PROGMEM = "s";
+const char global_n[] PROGMEM = "n";
+const char global_pbc[] PROGMEM = "pbc";
+const char global_dvd[] PROGMEM = "dvd";
+const char global_mp3[] PROGMEM = "mp3";
+const char global_dp[] PROGMEM = "dp";
 
 
 class AnotherVFD : public AbstractVFD {
