@@ -12,9 +12,9 @@ class AnimatableFunction {
     bool _blink;
     
   public:
-    virtual void getType(char* buffer);
+    virtual void getType(char* buffer, int bufsize);
     virtual void begin(const char * const memonic);
-    virtual void getMemonic(char* buffer);
+    virtual void getMemonic(char* buffer, int bufsize);
     virtual void animate()=0;
     virtual void setEnabled(bool enabled);
     virtual void setBlink();

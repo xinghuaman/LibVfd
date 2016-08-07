@@ -1,3 +1,4 @@
+
 #include <TimerOne.h>
 #include <Bounce2.h>
 #include <AnotherVFD.h>
@@ -11,16 +12,19 @@
 #include <LightSwitchCallback.h>
 #include <MemoryFree.h>
 
+#define COMMANDBUFSIZE 50
+#define GENERICBUFSIZE 20
+
 const int dataPin = 2;
 const int latchPin = 3;
 const int clockPin = 4;
 const int testPin = 9;
-const char global_noparse[] PROGMEM = "Does not parse!";
-const char global_unkfunc[] PROGMEM = "Unknown Function!";
+const char global_noparse[] PROGMEM  = "Does not parse!";
+const char global_unkfunc[] PROGMEM  = "Unknown Function!";
 const char global_sevenseg[] PROGMEM = "SevenSegmentEncoder";
-const char global_nodig[] PROGMEM = "It's not a digit!";
-const char global_unknerr[] PROGMEM = "Unknown Error!";
-char buffer[30];
+const char global_nodig[] PROGMEM    = "It's not a digit!";
+const char global_unknerr[] PROGMEM  = "Unknown Error!";
+char buffer[GENERICBUFSIZE];
 
 MirroringBitManipulator manipulator;
 Shifter shifter;
@@ -76,10 +80,10 @@ void nocomprende(const char * const command,const char * const cause) {
   Serial.println(F("Valid commands:"));
   AnimatableFunction** funcs = anotherVFD.getFunctions();
   for(int i=0;i<anotherVFD.getNumFunctions();i++) {
-  	funcs[i]->getMemonic(buffer);
+  	funcs[i]->getMemonic(buffer, GENERICBUFSIZE);
   	Serial.print(buffer);
 	Serial.print(F(" ("));
-	funcs[i]->getType(buffer);
+	funcs[i]->getType(buffer, GENERICBUFSIZE);
 	Serial.print(buffer);
 	Serial.println(F(")"));
   }
@@ -102,18 +106,23 @@ void loop(){
     Serial.print(F("Free Memory: "));
     Serial.println(freeMemory());
 
-    String command = Serial.readString();
+    char command[COMMANDBUFSIZE];
+    strncpy(command,Serial.readString().c_str(),COMMANDBUFSIZE);
+    command[COMMANDBUFSIZE-1] = '\0';
+
     DigitCommandParser parser;
     if (!parser.parse(command)) {
-      strcpy_P(buffer, global_noparse);
-      nocomprende(command.c_str(),buffer);
+      strncpy_P(buffer, global_noparse, GENERICBUFSIZE);
+      buffer[GENERICBUFSIZE-1] = '\0';
+      nocomprende(command, buffer);
       return;
     }
 
-    AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic().c_str());
+    AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic());
     if (func == NULL) {
-      strcpy_P(buffer, global_unkfunc);
-      nocomprende(command.c_str(), buffer);
+      strncpy_P(buffer, global_unkfunc, GENERICBUFSIZE);
+      buffer[GENERICBUFSIZE-1] = '\0';
+      nocomprende(command, buffer);
       return;
     }
 
@@ -124,17 +133,19 @@ void loop(){
     else if (parser.isBlink())
        func->setBlink();
     else if (parser.isNumber()) {
-       func->getType(buffer);
+       func->getType(buffer, GENERICBUFSIZE);
        if (strcmp_P(buffer, global_sevenseg) == 0 ) {
          SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
          en->encode(parser.getNumber());
        } else {
-         strcpy_P(buffer, global_nodig);
-         nocomprende(command.c_str(), buffer);
+         strncpy_P(buffer, global_nodig, GENERICBUFSIZE);
+      	 buffer[GENERICBUFSIZE-1] = '\0';
+         nocomprende(command, buffer);
        }
     } else {
-      strcpy_P(buffer, global_unknerr);
-      nocomprende(command.c_str(),global_unknerr);
+      strncpy_P(buffer, global_unknerr, GENERICBUFSIZE);
+      buffer[GENERICBUFSIZE-1]='\0';
+      nocomprende(command,global_unknerr);
     }
 
     Serial.print(F("Free Memory: "));

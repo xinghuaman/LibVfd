@@ -23,9 +23,10 @@ void AbstractVFD::animate(){
 AnimatableFunction* AbstractVFD::getFunctionFor(const char * const memonic) {
   char buffer[20];
   for(int i=0;i<_numFunctions;i++){
-    _functions[i]->getMemonic(buffer);
+    _functions[i]->getMemonic(buffer, 20);
+    buffer[20-1] = '\0';
     Serial.println(buffer);
-    if (strcmp(buffer,memonic)==0)
+    if (strcmp(buffer, memonic) == 0)
       return _functions[i];
   }
   return NULL;

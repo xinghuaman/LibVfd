@@ -13,14 +13,16 @@ void AnimatableFunction::begin(const char* const memonic) {
   _memonic=(char *) memonic;
 };
 
-void AnimatableFunction::getMemonic(char* buffer) {
-  strcpy_P(buffer,_memonic);
+void AnimatableFunction::getMemonic(char* buffer, int bufsize) {
+  strncpy_P(buffer,_memonic, bufsize);
+  buffer[bufsize-1] = '\0';
 }
 
 bool AnimatableFunction::isBlink() {
   return _blink;
 }
 
-void AnimatableFunction::getType(char* buffer) {
-   strcpy_P(buffer, txt_AnimatableFunction);
+void AnimatableFunction::getType(char* buffer, int bufsize) {
+   strncpy_P(buffer, txt_AnimatableFunction, bufsize);
+   buffer[bufsize-1] = '\0';
 }

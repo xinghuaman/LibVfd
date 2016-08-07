@@ -17,7 +17,7 @@ class SevenSegmentEncoder : public AnimatableFunction {
     byte _radix;
   
   public:
-    virtual void getType(char* buffer);
+    virtual void getType(char* buffer, int bufsize);
     virtual void begin(byte radix, const char* const memonic);
     virtual void addSegment(SevenSegments* segment, unsigned long* bin);
     virtual void encode(int number);
