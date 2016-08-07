@@ -6,25 +6,19 @@
 #include <Shifter.h>
 #include <AnotherMultiplexer.h>
 #include <MirroringBitManipulator.h>
-#include <DigitCommandParser.h>
 #include <CountingLightShow.h>
 #include <LarsonLightShow.h>
 #include <LightSwitchCallback.h>
 #include <MemoryFree.h>
+#include <VfdController.h>
+
 
 #define COMMANDBUFSIZE 50
-#define GENERICBUFSIZE 20
 
 const int dataPin = 2;
 const int latchPin = 3;
 const int clockPin = 4;
 const int testPin = 9;
-const char global_noparse[] PROGMEM  = "Does not parse!";
-const char global_unkfunc[] PROGMEM  = "Unknown Function!";
-const char global_sevenseg[] PROGMEM = "SevenSegmentEncoder";
-const char global_nodig[] PROGMEM    = "It's not a digit!";
-const char global_unknerr[] PROGMEM  = "Unknown Error!";
-char buffer[GENERICBUFSIZE];
 
 MirroringBitManipulator manipulator;
 Shifter shifter;
@@ -33,6 +27,7 @@ AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
 CountingLightShow show1;
 LarsonLightShow show2;
 Bounce debouncer;
+VfdController controller;
 
 boolean lightShowState=false;
 
@@ -72,24 +67,6 @@ void timerRoutine(){
   plexi.cycle();
 }
 
-void nocomprende(const char * const command,const char * const cause) {
-  Serial.print(F("Hein? "));
-  Serial.print(command);
-  Serial.print(F(" "));
-  Serial.println(cause);
-  Serial.println(F("Valid commands:"));
-  AnimatableFunction** funcs = anotherVFD.getFunctions();
-  for(int i=0;i<anotherVFD.getNumFunctions();i++) {
-  	funcs[i]->getMemonic(buffer, GENERICBUFSIZE);
-  	Serial.print(buffer);
-	Serial.print(F(" ("));
-	funcs[i]->getType(buffer, GENERICBUFSIZE);
-	Serial.print(buffer);
-	Serial.println(F(")"));
-  }
-}
-
-
 
 void loop(){
   debouncer.update();
@@ -103,54 +80,11 @@ void loop(){
   }
  
   if (Serial.available()>0) {
-    Serial.print(F("Free Memory: "));
-    Serial.println(freeMemory());
-
     char command[COMMANDBUFSIZE];
     strncpy(command,Serial.readString().c_str(),COMMANDBUFSIZE);
     command[COMMANDBUFSIZE-1] = '\0';
 
-    DigitCommandParser parser;
-    if (!parser.parse(command)) {
-      strncpy_P(buffer, global_noparse, GENERICBUFSIZE);
-      buffer[GENERICBUFSIZE-1] = '\0';
-      nocomprende(command, buffer);
-      return;
-    }
-
-    AnimatableFunction* func = anotherVFD.getFunctionFor(parser.getMemonic());
-    if (func == NULL) {
-      strncpy_P(buffer, global_unkfunc, GENERICBUFSIZE);
-      buffer[GENERICBUFSIZE-1] = '\0';
-      nocomprende(command, buffer);
-      return;
-    }
-
-    if (parser.isOn())
-       func->setEnabled(true);
-    else if (parser.isOff())
-       func->setEnabled(false);
-    else if (parser.isBlink())
-       func->setBlink();
-    else if (parser.isNumber()) {
-       func->getType(buffer, GENERICBUFSIZE);
-       if (strcmp_P(buffer, global_sevenseg) == 0 ) {
-         SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
-         en->encode(parser.getNumber());
-       } else {
-         strncpy_P(buffer, global_nodig, GENERICBUFSIZE);
-      	 buffer[GENERICBUFSIZE-1] = '\0';
-         nocomprende(command, buffer);
-       }
-    } else {
-      strncpy_P(buffer, global_unknerr, GENERICBUFSIZE);
-      buffer[GENERICBUFSIZE-1]='\0';
-      nocomprende(command,global_unknerr);
-    }
-
-    Serial.print(F("Free Memory: "));
-    Serial.println(freeMemory());
-  
-}
+    controller.obey(command, &anotherVFD);
+  }
 
 }
