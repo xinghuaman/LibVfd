@@ -7,7 +7,8 @@
 #include <AnotherMultiplexer.h>
 #include <MirroringBitManipulator.h>
 #include <CountingLightShow.h>
-#include <LarsonLightShow.h>
+#include <LarsonLightShowBuilder.h>
+#include <LarsonScanner.h>
 #include <LightSwitchCallback.h>
 #include <MemoryFree.h>
 #include <VfdController.h>
@@ -25,7 +26,8 @@ Shifter shifter;
 AnotherVFD anotherVFD;
 AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
 CountingLightShow show1;
-LarsonLightShow show2;
+LarsonScanner* show2;
+LarsonLightShowBuilder show2builder;
 Bounce debouncer;
 VfdController controller;
 
@@ -46,8 +48,16 @@ void setup() {
   show1.addDigit(&(anotherVFD.digit2), 2);
   show1.addDigit(&(anotherVFD.digit3), 3);
 
-  show2.setVfd(&anotherVFD);
-  show2.begin();
+  show2 = show2builder.add(&(anotherVFD._threezero))
+  	->add(&(anotherVFD._s))
+  	->add(&(anotherVFD._v))
+  	->add(&(anotherVFD._cd))
+  	->add(&(anotherVFD._N))
+  	->add(&(anotherVFD._p))
+  	->add(&(anotherVFD._dvd))
+  	->add(&(anotherVFD._pbc))
+  	->add(&(anotherVFD._mp3))
+	->getScanner();
 }      
 
 boolean pinState13=false;
@@ -59,7 +69,7 @@ void timerRoutine(){
     digitalWrite(13,pinState13);
     pinState13=~pinState13;
     show1.animate();
-    show2.animate();
+    if (lightShowState) show2->cycle();
     counter=0;
   } else {
     counter++;
@@ -74,7 +84,6 @@ void loop(){
   if (debouncer.fell()) {
     lightShowState = !lightShowState;
     show1.enable(lightShowState);
-    show2.enable(lightShowState);
     if (lightShowState) anotherVFD._tdvd.setBlink();
     else anotherVFD._tdvd.setEnabled(false);
   }
