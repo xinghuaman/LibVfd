@@ -1,5 +1,5 @@
-#ifndef AnotherVFD_h
-#define AnotherVFD_h
+#ifndef AnotherVfd_h
+#define AnotherVfd_h
 
 #include "AbstractVFD.h"
 #include "SevenSegments.h"
@@ -30,7 +30,7 @@ const char global_mp3[] PROGMEM = "mp3";
 const char global_dp[] PROGMEM = "dp";
 
 
-class AnotherVFD : public AbstractVFD {
+class AnotherVfd : public AbstractVFD {
   public:
     SevenSegments _rightseg;
     SevenSegments _leftseg;
@@ -58,7 +58,7 @@ class AnotherVFD : public AbstractVFD {
     SingleFunction _mp3;
     SingleFunction _doublepoint;
    
-    AnotherVFD();
+    AnotherVfd();
 };
 
 #endif

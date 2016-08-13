@@ -1,7 +1,7 @@
 
 #include <TimerOne.h>
 #include <Bounce2.h>
-#include "AnotherVFD.h"
+#include "AnotherVfd.h"
 #include <AbstractVFD.h>
 #include <Shifter.h>
 #include <AnotherMultiplexer.h>
@@ -23,7 +23,7 @@ const int testPin = 9;
 
 MirroringBitManipulator manipulator;
 Shifter shifter;
-AnotherVFD anotherVFD;
+AnotherVfd anotherVFD;
 AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
 CountingLightShow show1;
 LarsonScanner* show2;

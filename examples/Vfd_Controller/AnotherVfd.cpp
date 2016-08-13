@@ -1,6 +1,6 @@
-#include "AnotherVFD.h"
+#include "AnotherVfd.h"
 
-AnotherVFD::AnotherVFD()
+AnotherVfd::AnotherVfd()
 {
   //AbstractVFD::AbstractVFD();
 
