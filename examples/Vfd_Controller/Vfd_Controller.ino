@@ -1,5 +1,3 @@
-
-#include <TimerOne.h>
 #include <Bounce2.h>
 #include "AnotherVfd.h"
 #include <AbstractVFD.h>
@@ -36,8 +34,6 @@ boolean lightShowState=false;
 void setup() {
   
   Serial.begin(9600);
-  Timer1.initialize(2000);
-  Timer1.attachInterrupt(timerRoutine);
   manipulator.setMirroring(0x01,20);
   shifter.begin(2,3,4,&manipulator);
   pinMode(13,OUTPUT);
@@ -61,22 +57,8 @@ void setup() {
 }      
 
 boolean pinState13=false;
-int counter=0;
-
-void timerRoutine(){
-  if (counter > 50) {
-    anotherVFD.animate();
-    digitalWrite(13,pinState13);
-    pinState13=~pinState13;
-    show1.animate();
-    if (lightShowState) show2->cycle();
-    counter=0;
-  } else {
-    counter++;
-  }
-  plexi.cycle();
-}
-
+unsigned long lasttime1;
+unsigned long lasttime2;
 
 void loop(){
   debouncer.update();
@@ -95,5 +77,21 @@ void loop(){
 
     controller.obey(command, &anotherVFD);
   }
+  
+  if (millis() - lasttime2 > 250) {
+  	anotherVFD.animate();
+    	digitalWrite(13,pinState13);
+    	pinState13=~pinState13;
+    	show1.animate();
+    	if (lightShowState) show2->cycle();
+  	lasttime2 = millis();
+  }
+  
+  if (millis()-lasttime1>2) {
+  	plexi.cycle();
+	lasttime1 = millis();
+  }
+
+  
 
 }
