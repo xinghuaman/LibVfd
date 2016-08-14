@@ -1,6 +1,9 @@
 #include <VfdController.h>
 #include <MemoryFree.h>
 #include <SevenSegmentEncoder.h>
+#include <EqualsLikeCommandParser.h>
+
+#include <string.h>
 
 char VfdController::buffer[GENERICBUFSIZE];
 
@@ -29,34 +32,35 @@ void VfdController::obey(char command[], AbstractVFD* vfd){
     Serial.print(F("Free Memory: "));
     Serial.println(freeMemory());
 
-    DigitCommandParser parser;
-    if (!parser.parse(command)) {
+    EqualsLikeCommandParser parser;
+    EqualsLikeToken token;
+
+    if (parser.parse(command, &token)!=0) {
       nocomprende(command, global_noparse, vfd);
       return;
     }
 
-    AnimatableFunction* func = vfd->getFunctionFor(parser.getMemonic());
+    AnimatableFunction* func = vfd->getFunctionFor(token.subject);
     if (func == NULL) {
       nocomprende(command, global_unkfunc, vfd);
       return;
     }
 
-    if (parser.isOn())
+    if (strcmp_P(token.object, PSTR("on")))
        func->setEnabled(true);
-    else if (parser.isOff())
+    else if (strcmp_P(token.object, PSTR("off")))
        func->setEnabled(false);
-    else if (parser.isBlink())
+    else if (strcmp_P(token.object, PSTR("blink")))
        func->setBlink();
-    else if (parser.isNumber()) {
+    else {
        func->getType(buffer, GENERICBUFSIZE);
        if (strcmp_P(buffer, global_sevenseg) == 0 ) {
+       	 long number = strtol(token.object,NULL,10);
          SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
-         en->encode(parser.getNumber());
+         en->encode(number);
        } else {
          nocomprende(command, global_nodig, vfd);
        }
-    } else {
-      nocomprende(command,global_unknerr, vfd);
-    }
+    } 
 }
 

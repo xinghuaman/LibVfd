@@ -1,8 +1,6 @@
 #ifndef VfdController_h
 #define VfdController_h
 
-#include <Arduino.h>
-#include <DigitCommandParser.h>
 #include <AbstractVFD.h>
 
 #define GENERICBUFSIZE 20

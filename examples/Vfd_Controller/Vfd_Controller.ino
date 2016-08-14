@@ -12,7 +12,7 @@
 #include <LightSwitchCallback.h>
 #include <MemoryFree.h>
 #include <VfdController.h>
-
+#include <EqualsLikeCommandParser.h>
 
 #define COMMANDBUFSIZE 50
 
