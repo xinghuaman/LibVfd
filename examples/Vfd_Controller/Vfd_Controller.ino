@@ -29,17 +29,21 @@ LarsonLightShowBuilder show2builder;
 Bounce debouncer;
 VfdController controller;
 
+boolean pinState13=false;
+unsigned long lasttime1;
+unsigned long lasttime2;
 boolean lightShowState=false;
 
 void setup() {
   
   Serial.begin(9600);
   manipulator.setMirroring(0x01,20);
-  shifter.begin(2,3,4,&manipulator);
+  shifter.begin(dataPin,latchPin,clockPin,&manipulator);
   pinMode(13,OUTPUT);
   pinMode(testPin, INPUT_PULLUP);
   debouncer.attach(testPin);
-  debouncer.interval(500);
+  debouncer.interval(100);
+
   show1.addDigit(&(anotherVFD.digit1), 1);
   show1.addDigit(&(anotherVFD.digit2), 2);
   show1.addDigit(&(anotherVFD.digit3), 3);
@@ -55,10 +59,6 @@ void setup() {
   	->add(&(anotherVFD._mp3))
 	->getScanner();
 }      
-
-boolean pinState13=false;
-unsigned long lasttime1;
-unsigned long lasttime2;
 
 void loop(){
   debouncer.update();
@@ -78,7 +78,7 @@ void loop(){
     controller.obey(command, &anotherVFD);
   }
   
-  if (millis() - lasttime2 > 250) {
+  if (millis() - lasttime2 > 100) {
   	anotherVFD.animate();
     	digitalWrite(13,pinState13);
     	pinState13=~pinState13;
@@ -87,7 +87,7 @@ void loop(){
   	lasttime2 = millis();
   }
   
-  if (millis()-lasttime1>2) {
+  if (millis()-lasttime1 > 2) {
   	plexi.cycle();
 	lasttime1 = millis();
   }
