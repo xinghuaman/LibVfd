@@ -18,6 +18,9 @@ void VfdController::nocomprende(const char * const command,const char * const ca
   Serial.println(F("<--\nValid commands:"));
   AnimatableFunction** funcs = vfd->getFunctions();
   for(int i=0;i<vfd->getNumFunctions();i++) {
+   	//Serial.print(F("Free Memory: "));
+    	//Serial.println(freeMemory());
+
   	funcs[i]->getMemonic(buffer, GENERICBUFSIZE);
   	Serial.print(buffer);
 	Serial.print(F(" ("));
@@ -57,6 +60,8 @@ void VfdController::obey(char command[], AbstractVFD* vfd){
        func->getType(buffer, GENERICBUFSIZE);
        if (strcmp_P(buffer, PSTR("SevenSegmentEncoder")) == 0 ) {
        	 long number = strtol(token.object,NULL,10);
+	 Serial.print(F("Got Number: "));
+	 Serial.println(number);
          SevenSegmentEncoder* en = (SevenSegmentEncoder*) func;          
          en->encode(number);
        } else {

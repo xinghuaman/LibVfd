@@ -12,12 +12,13 @@
 #include <VfdController.h>
 #include <EqualsLikeCommandParser.h>
 #include <CommandAssembler.h>
+#include <TimerOne.h>
 
 #define COMMANDBUFSIZE 50
 #define DEBOUNCE_TIME 100
 #define BAUD_RATE 9600
 #define ANIMATION_TIME_MS 100
-#define CYCLE_TIME_MS 2
+#define CYCLE_TIME_MUS 2000
 
 const int dataPin = 2;
 const int latchPin = 3;
@@ -41,10 +42,18 @@ boolean lightShowState=false;
 char buffer0[COMMANDBUFSIZE];
 char buffer1[COMMANDBUFSIZE];
 
+void timeOut() {
+	plexi.cycle();
+}
+
+
 void setup() {
   
   Serial.begin(BAUD_RATE);
   assembler.setBuffer(buffer0, COMMANDBUFSIZE);
+
+  Timer1.initialize(CYCLE_TIME_MUS);
+  Timer1.attachInterrupt(timeOut);
 
   shifter.begin(dataPin,latchPin,clockPin,NULL);
   pinMode(13,OUTPUT);
@@ -94,11 +103,4 @@ void loop(){
   	lasttime2 = millis();
   }
   
-  if (millis()-lasttime1 > CYCLE_TIME_MS) {
-  	plexi.cycle();
-	lasttime1 = millis();
-  }
-
-  
-
 }

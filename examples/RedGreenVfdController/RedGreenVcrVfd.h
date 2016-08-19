@@ -7,6 +7,8 @@
 #include "SingleFunction.h"
 #include "SevenSegmentEncoder.h"
 
+#define GENERICBUFFIZE 50
+
 const char RGV_digit1[] PROGMEM = "digit1";
 const char RGV_digit2[] PROGMEM = "digit2";
 const char RGV_digit3[] PROGMEM = "digit3";
@@ -45,6 +47,7 @@ const char RGV_hifi[] PROGMEM = "hifi";
 const char RGV_pm[] PROGMEM = "pm";
 const char RGV_err[] PROGMEM = "err";
 const char RGV_ply[] PROGMEM = "ply";
+const char RGV_pply[] PROGMEM = "pply";
 const char RGV_fply[] PROGMEM = "fply";
 const char RGV_rec[] PROGMEM = "rec";
 const char RGV_pse[] PROGMEM = "pse";
@@ -117,6 +120,7 @@ class RedGreenVcrVfd : public AbstractVFD {
     SingleFunction _err;
 
     SingleFunction _ply;
+    SingleFunction _pply;
     SingleFunction _fply;
     SingleFunction _rec;
     SingleFunction _pse;

@@ -8,7 +8,7 @@ class AbstractVFD {
     int _numbins;
     unsigned long _bins[10];
     
-    AnimatableFunction* _functions[30];
+    AnimatableFunction* _functions[70];
     int _numFunctions;
    
     void addFunc(AnimatableFunction* function);
