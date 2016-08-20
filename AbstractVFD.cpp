@@ -2,9 +2,8 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 
-#include <Arduino.h>
-
 void AbstractVFD::addFunc(AnimatableFunction* function){
+  if (_numFunctions >= ABSTRACTVFD_MAXFUNCTIONS - 1) return;
   _functions[_numFunctions++] = function;
 }
 
@@ -25,7 +24,7 @@ AnimatableFunction* AbstractVFD::getFunctionFor(const char * const memonic) {
   for(int i=0;i<_numFunctions;i++){
     _functions[i]->getMemonic(buffer, 20);
     buffer[20-1] = '\0';
-    Serial.println(buffer);
+    //Serial.println(buffer);
     if (strcmp(buffer, memonic) == 0)
       return _functions[i];
   }

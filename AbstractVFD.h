@@ -1,6 +1,8 @@
 #ifndef AbstractVFD_h
 #define AbstractVFD_h
 
+#define ABSTRACTVFD_MAXFUNCTIONS 70
+
 #include "AnimatableFunction.h"
 
 class AbstractVFD {
@@ -8,7 +10,7 @@ class AbstractVFD {
     int _numbins;
     unsigned long _bins[10];
     
-    AnimatableFunction* _functions[70];
+    AnimatableFunction* _functions[ABSTRACTVFD_MAXFUNCTIONS];
     int _numFunctions;
    
     void addFunc(AnimatableFunction* function);
