@@ -51,6 +51,7 @@ const char RGV_pply[] PROGMEM = "pply";
 const char RGV_fply[] PROGMEM = "fply";
 const char RGV_rec[] PROGMEM = "rec";
 const char RGV_pse[] PROGMEM = "pse";
+const char RGV_ppse[] PROGMEM = "ppse";
 const char RGV_ff[] PROGMEM = "ff";
 const char RGV_rwd[] PROGMEM = "rwd";
 
@@ -76,6 +77,10 @@ const char RGV_h[] PROGMEM = "h";
 const char RGV_sek[] PROGMEM = "sek";
 
 
+const char RGV_ldash[] PROGMEM = "ldash";
+const char RGV_udash[] PROGMEM = "udash";
+const char RGV_ovrflw1[] PROGMEM = "ovrflw1";
+
 class RedGreenVcrVfd : public AbstractVFD {
   public:
     SevenSegments _mostused;
@@ -89,6 +94,7 @@ class RedGreenVcrVfd : public AbstractVFD {
     SevenSegmentEncoder digit6;
 
     SingleFunction _dp;
+    SingleFunction _ovrflw1;
 
     SingleFunction _pwr;
     SingleFunction _cas;
@@ -124,6 +130,7 @@ class RedGreenVcrVfd : public AbstractVFD {
     SingleFunction _fply;
     SingleFunction _rec;
     SingleFunction _pse;
+    SingleFunction _ppse;
     SingleFunction _ff;
     SingleFunction _rwd;
 
@@ -147,6 +154,9 @@ class RedGreenVcrVfd : public AbstractVFD {
     SingleFunction _m;
     SingleFunction _h;
     SingleFunction _sek;
+
+    SingleFunction _ldash;
+    SingleFunction _udash;
     RedGreenVcrVfd();
 };
 
