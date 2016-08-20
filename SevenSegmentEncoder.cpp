@@ -4,6 +4,8 @@
 void SevenSegmentEncoder::begin(byte radix, const char* const memonic) {
    AnimatableFunction::begin(memonic);
   _radix = radix;
+  _overflow = NULL;
+  _minus = NULL;
 };
 
 void SevenSegmentEncoder::addSegment(SevenSegments* segment, unsigned long* bin){
@@ -15,10 +17,9 @@ void SevenSegmentEncoder::addSegment(SevenSegments* segment, unsigned long* bin)
 void SevenSegmentEncoder::encode(int number) {
   //Serial.print("Trying to encode: ");
   //Serial.println(number);
-  if (number < 0 ) {
-    number = -number;
-    //TODO: Handle numbersign.
-  }
+
+  if (_minus != NULL) _minus->setEnabled(number < 0);
+  if (number < 0) number = -number;
   
   for (int i=_numSegments-1; i>=0; i--) {
     //Serial.println(i);
@@ -27,7 +28,8 @@ void SevenSegmentEncoder::encode(int number) {
     (*_myBins[i])&=~_mySegments[i]->getMaskForClearing();
     (*_myBins[i])|=_mySegments[i]->getMaskForDigit(digit);
   }
-  //TODO: Handle overflow
+  
+  if (_overflow != NULL) _overflow->setEnabled(number > 0);
 };
 
 void SevenSegmentEncoder::animate() {
@@ -48,4 +50,12 @@ void SevenSegmentEncoder::setEnabled(boolean enabled) {
 void SevenSegmentEncoder::getType(char* buffer, int bufsize) {
   strncpy_P(buffer,txt_SevenSegmentEncoder, bufsize);
   buffer[bufsize-1] = '\0';
+}
+
+void SevenSegmentEncoder::setOverflow(AnimatableFunction* overflow) {
+	_overflow=overflow;
+}
+
+void SevenSegmentEncoder::setMinus(AnimatableFunction* minus) {
+	_minus=minus;
 }

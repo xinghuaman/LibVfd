@@ -15,6 +15,9 @@ class SevenSegmentEncoder : public AnimatableFunction {
 
     byte _numSegments;
     byte _radix;
+
+    AnimatableFunction* _overflow;
+    AnimatableFunction* _minus;
   
   public:
     virtual void getType(char* buffer, int bufsize);
@@ -22,6 +25,8 @@ class SevenSegmentEncoder : public AnimatableFunction {
     virtual void addSegment(SevenSegments* segment, unsigned long* bin);
     virtual void encode(int number);
     virtual void setEnabled(boolean enabled);
+    virtual void setOverflow(AnimatableFunction* overflow);
+    virtual void setMinus(AnimatableFunction* minus);
     virtual void animate();
 };
 #endif

@@ -17,6 +17,8 @@ RedGreenVcrVfd::RedGreenVcrVfd()
    digit1.begin(10,PSTR("digit1"));
    digit1.addSegment(&_mostused, _bins+0); //Overflow also on grid 0
    digit1.addSegment(&_mostused, _bins+2);
+   digit1.setOverflow(&_ovrflw1);
+   digit1.setMinus(&_udash);
    addFunc(&digit1);
 
    digit2.begin(10,PSTR("digit2"));
