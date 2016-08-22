@@ -1,12 +1,13 @@
 #include <Bounce2.h>
-#include "AnotherVfd.h"
+#include "DvdVfd.h"
 #include <AbstractVFD.h>
 #include <Shifter.h>
 #include <AnotherMultiplexer.h>
 #include <MirroringBitManipulator.h>
 #include <CountingLightShow.h>
 #include <LarsonLightShowBuilder.h>
-#include <LarsonScanner.h>
+#include <LarsonSequenceGenerator.h>
+#include <LightSequencer.h>
 #include <LightSwitchCallback.h>
 #include <MemoryFree.h>
 #include <VfdController.h>
@@ -26,11 +27,12 @@ const int testPin = 9;
 
 MirroringBitManipulator manipulator;
 Shifter shifter;
-AnotherVfd anotherVFD;
+DvdVfd anotherVFD;
 AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
 CountingLightShow show1;
-LarsonScanner* show2;
+int sequence[150];
 LarsonLightShowBuilder show2builder;
+LightSequencer* show2;
 Bounce debouncer;
 VfdController controller;
 CommandAssembler assembler;
@@ -67,7 +69,8 @@ void setup() {
   	->add(&(anotherVFD._dvd))
   	->add(&(anotherVFD._pbc))
   	->add(&(anotherVFD._mp3))
-	->getScanner();
+	->getSequencer();
+   
 }      
 
 void loop(){

@@ -3,16 +3,19 @@
 
 #include <AnimatableLightSwitchCallback.h>
 #include <SingleFunction.h>
-#include <LarsonScanner.h>
+#include <LarsonSequenceGenerator.h>
+#include <LightSequencer.h>
 
 class LarsonLightShowBuilder {
   private:
-  	LarsonScanner _scanner;
 	AnimatableLightSwitchCallback _callback;
+	int _sequence[150];
+	LightSequencer _sequencer;
+
 
   public:
     LarsonLightShowBuilder* add(SingleFunction* function);
-    LarsonScanner* getScanner();
+    LightSequencer*  getSequencer();
 };
 
 #endif

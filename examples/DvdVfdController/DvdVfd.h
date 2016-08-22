@@ -1,5 +1,5 @@
-#ifndef AnotherVfd_h
-#define AnotherVfd_h
+#ifndef DvdVfd_h
+#define DvdVfd_h
 
 #include "AbstractVFD.h"
 #include "SevenSegments.h"
@@ -8,7 +8,7 @@
 #include "SevenSegmentEncoder.h"
 #include <avr/pgmspace.h>
 
-class AnotherVfd : public AbstractVFD {
+class DvdVfd : public AbstractVFD {
   public:
     SevenSegments _rightseg;
     SevenSegments _leftseg;
@@ -36,7 +36,7 @@ class AnotherVfd : public AbstractVFD {
     SingleFunction _mp3;
     SingleFunction _doublepoint;
    
-    AnotherVfd();
+    DvdVfd();
 };
 
 #endif
