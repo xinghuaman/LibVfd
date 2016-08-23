@@ -6,10 +6,13 @@
 #include <LarsonSequenceGenerator.h>
 #include <LightSequencer.h>
 
+#define LarsonLightShowBuilderSEQLEN 150
+
 class LarsonLightShowBuilder {
   private:
 	AnimatableLightSwitchCallback _callback;
-	int _sequence[150];
+	int _sequence[LarsonLightShowBuilderSEQLEN];
+	const int _sequenceLength = LarsonLightShowBuilderSEQLEN;
 	LightSequencer _sequencer;
 
 
