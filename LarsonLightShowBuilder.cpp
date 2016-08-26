@@ -7,7 +7,7 @@ LarsonLightShowBuilder* LarsonLightShowBuilder::add(SingleFunction* func) {
 
 LightSequencer* LarsonLightShowBuilder::getSequencer() {
 	LarsonSequenceGenerator generator;
-	generator.begin(_callback.getNumFunctions(),0, 3, _sequence, _sequenceLength);
+	generator.begin(_callback.getNumFunctions(),0, 3, _sequence);
 	_sequencer.begin(&_callback,_sequence);
 	return &_sequencer;
 }

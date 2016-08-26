@@ -30,6 +30,7 @@ Shifter shifter;
 DvdVfd anotherVFD;
 AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
 CountingLightShow show1;
+int sequence[150];
 LarsonLightShowBuilder show2builder;
 LightSequencer* show2;
 Bounce debouncer;
