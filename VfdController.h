@@ -5,16 +5,14 @@
 #include <LarsonLightShowBuilder.h>
 #include <CountingLightShow.h>
 
-#define VFDCONTROLLER_BUFFSIZE 20
-
 class VfdController {
 	private:
 		AbstractVFD* _vfd;
 		void nocomprende(const char* const command, const char* const cause);
-		LarsonLightShowBuilder _builder;
+		//LarsonLightShowBuilder _builder;
 		int compairType(AnimatableFunction* func, const char compairTo[]);
 		bool _isLightShowEnabled;
-		CountingLightShow _show;
+		//CountingLightShow _show;
 
 	public:
 		void obey(char command[]);

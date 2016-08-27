@@ -3,8 +3,6 @@
 
 #include <avr/pgmspace.h>
 
-const char txt_AnimatableFunction[] PROGMEM = "AnimatableFunction";
-
 class AnimatableFunction {
   private:
     char* _memonic;
@@ -12,10 +10,10 @@ class AnimatableFunction {
     bool _blink;
     
   public:
-    virtual const char* getRawType();
-    virtual void getType(char* buffer, int bufsize);
+    virtual int getRawType();
     virtual void begin(const char * const memonic);
     virtual void getMemonic(char* buffer, int bufsize);
+    virtual bool hasMemonic(char* buffer);
     virtual void animate()=0;
     virtual void setEnabled(bool enabled);
     virtual void setBlink();

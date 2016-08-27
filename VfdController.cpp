@@ -8,16 +8,14 @@
 
 #include <Arduino.h>
 
-char vfdcontroller_buffer[VFDCONTROLLER_BUFFSIZE];
-
 VfdController* VfdController::add2Show(SingleFunction* singleFunction) {
-	_builder.add(singleFunction);
+	//_builder.add(singleFunction);
 	return this;
 }
 
 void VfdController::begin(AbstractVFD* vfd) {
 	_vfd = vfd;
-	_builder.finish();
+	//_builder.finish();
 	
 	AnimatableFunction** funcs = _vfd->getFunctions();
 
@@ -27,13 +25,9 @@ void VfdController::begin(AbstractVFD* vfd) {
 
 		AnimatableFunction* func = funcs[i];
 
-		Serial.println((int)func->getRawType(), HEX);
-		Serial.println((int)txt_SevenSegmentEncoder, HEX);
-
-		func->getType(vfdcontroller_buffer,VFDCONTROLLER_BUFFSIZE);
-		if (strcmp_P(vfdcontroller_buffer,txt_SevenSegmentEncoder)==0) {
+		if (func->getRawType() == 1) {
 			Serial.println(F("Adding"));
-			_show.addDigit((SevenSegmentEncoder*) funcs[i], i);
+			//_show.addDigit((SevenSegmentEncoder*) funcs[i], i);
 		}
 		
 	}
@@ -41,16 +35,21 @@ void VfdController::begin(AbstractVFD* vfd) {
 
 void VfdController::animate() {
 	if (!_isLightShowEnabled) return;
-	_builder.getScanner()->cycle();	
-	_show.animate();
+	//_builder.getScanner()->cycle();	
+//	_show.animate();
 }
 
 void VfdController::enableLightShow(bool enabled) {
 	_isLightShowEnabled = enabled;
-	_show.enable(_isLightShowEnabled);
+	//_show.enable(_isLightShowEnabled);
 }
 
+
+#define VFDCONTROLLER_BUFFSIZE 20
+
 void VfdController::nocomprende(const char * const command,const char * const cause) {
+  char vfdcontroller_buffer[VFDCONTROLLER_BUFFSIZE];
+
   Serial.print(F("What? "));
   Serial.print(command);
   Serial.print(F(" -->"));
@@ -61,11 +60,7 @@ void VfdController::nocomprende(const char * const command,const char * const ca
   AnimatableFunction** funcs = _vfd->getFunctions();
   for(int i=0;i<_vfd->getNumFunctions();i++) {
   	funcs[i]->getMemonic(vfdcontroller_buffer,VFDCONTROLLER_BUFFSIZE );
-  	Serial.print(vfdcontroller_buffer);
-	Serial.print(F(" ("));
-	funcs[i]->getType(vfdcontroller_buffer,VFDCONTROLLER_BUFFSIZE );
-	Serial.print(vfdcontroller_buffer);
-	Serial.println(F(")"));
+  	Serial.println(vfdcontroller_buffer);
   }
   Serial.print(F("Free Memory: "));
   Serial.println(freeMemory());
@@ -97,8 +92,7 @@ void VfdController::obey(char command[]){
     else if (strcmp_P(token.object, PSTR("blink"))==0)
        func->setBlink();
     else {
-       func->getType(vfdcontroller_buffer,VFDCONTROLLER_BUFFSIZE); 
-       if (strcmp_P(vfdcontroller_buffer,txt_SevenSegmentEncoder)==0) {
+       if (func->getRawType() == 1) {
        	 long number = strtol(token.object,NULL,10);
 	 Serial.print(F("Got Number: "));
 	 Serial.println(number);

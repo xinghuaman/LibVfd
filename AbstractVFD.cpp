@@ -24,7 +24,6 @@ AnimatableFunction* AbstractVFD::getFunctionFor(const char * const memonic) {
   for(int i=0;i<_numFunctions;i++){
     _functions[i]->getMemonic(buffer, ABSTRACTVFD_COMPAIRBUFFSIZE);
     buffer[ABSTRACTVFD_COMPAIRBUFFSIZE-1] = '\0';
-    //Serial.println(buffer);
     if (strcmp(buffer, memonic) == 0)
       return _functions[i];
   }

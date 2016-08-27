@@ -47,8 +47,8 @@ void SevenSegmentEncoder::setEnabled(boolean enabled) {
   }
 }
 
-const char* SevenSegmentEncoder::getRawType() {
-	return txt_SevenSegmentEncoder;
+int SevenSegmentEncoder::getRawType() {
+	return 1;
 }
 
 void SevenSegmentEncoder::setOverflow(AnimatableFunction* overflow) {

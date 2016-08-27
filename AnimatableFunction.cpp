@@ -18,15 +18,14 @@ void AnimatableFunction::getMemonic(char* buffer, int bufsize) {
   buffer[bufsize-1] = '\0';
 }
 
+bool AnimatableFunction::hasMemonic(char* buffer) {
+	return strcmp_P(buffer, _memonic);
+}
+
 bool AnimatableFunction::isBlink() {
   return _blink;
 }
 
-const char* AnimatableFunction::getRawType() {
-	return txt_AnimatableFunction;
-}
-
-void AnimatableFunction::getType(char* buffer, int bufsize) {
-   strncpy_P(buffer, getRawType(), bufsize);
-   buffer[bufsize-1] = '\0';
+int AnimatableFunction::getRawType() {
+	return 0;
 }
