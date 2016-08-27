@@ -1,13 +1,15 @@
 #ifndef CountingLightShow_h
-#define CoutingLightShow_h
+#define CountingLightShow_h
 
 #include "SevenSegmentEncoder.h"
 #include <Arduino.h>
 
+#define COUNTINGLIGHTSHOW_MAXDIGITS 10
+
 class CountingLightShow {
   private:
-    unsigned long _counters[20];
-    SevenSegmentEncoder* _digits[20];
+    unsigned long _counters[COUNTINGLIGHTSHOW_MAXDIGITS];
+    SevenSegmentEncoder* _digits[COUNTINGLIGHTSHOW_MAXDIGITS];
     int _numDigits;
     boolean _enabled;
 

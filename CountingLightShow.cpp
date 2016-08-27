@@ -6,6 +6,7 @@ CountingLightShow::CountingLightShow() {
 
 void CountingLightShow::addDigit(SevenSegmentEncoder* encoder, int
 	initialCount) {
+	if (_numDigits >= COUNTINGLIGHTSHOW_MAXDIGITS-1) return;
 	_digits[_numDigits] = encoder;
 	_counters[_numDigits] = initialCount;
 	_numDigits++;

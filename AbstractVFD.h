@@ -1,14 +1,16 @@
 #ifndef AbstractVFD_h
 #define AbstractVFD_h
 
-#define ABSTRACTVFD_MAXFUNCTIONS 70
+#define ABSTRACTVFD_MAXFUNCTIONS 20
+#define ABSTRACTVFD_COMPAIRBUFFSIZE 20
+#define ABSTRACTVFD_MAXBINS 10
 
 #include "AnimatableFunction.h"
 
 class AbstractVFD {
   protected:
     int _numbins;
-    unsigned long _bins[10];
+    unsigned long _bins[ABSTRACTVFD_MAXBINS];
     
     AnimatableFunction* _functions[ABSTRACTVFD_MAXFUNCTIONS];
     int _numFunctions;

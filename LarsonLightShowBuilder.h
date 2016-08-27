@@ -1,21 +1,21 @@
 #ifndef LarsonLightShowBuilder_h
-#define CoutingLightShowBuilder_h
+#define LarsonLightShowBuilder_h
 
 #include <AnimatableLightSwitchCallback.h>
 #include <SingleFunction.h>
 #include <LarsonSequenceGenerator.h>
-#include <LightSequencer.h>
+#include <LarsonScanner.h>
 
 class LarsonLightShowBuilder {
   private:
 	AnimatableLightSwitchCallback _callback;
-	int _sequence[150];
-	LightSequencer _sequencer;
+	LarsonScanner _scanner;
 
 
   public:
     LarsonLightShowBuilder* add(SingleFunction* function);
-    LightSequencer*  getSequencer();
+    void finish();
+    LarsonScanner*  getScanner();
 };
 
 #endif

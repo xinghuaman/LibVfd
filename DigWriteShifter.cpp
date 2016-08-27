@@ -1,8 +1,8 @@
-#include "Shifter.h"
+#include "DigWriteShifter.h"
 
 #include <Arduino.h>
 
-void Shifter::begin(int dataPin, int latchPin, int clockPin, BitManipulator* manipulator){
+void DigWriteShifter::begin(int dataPin, int latchPin, int clockPin, BitManipulator* manipulator){
   _dataPin = dataPin;
   _latchPin = latchPin;
   _clockPin = clockPin;
@@ -14,7 +14,7 @@ void Shifter::begin(int dataPin, int latchPin, int clockPin, BitManipulator* man
 
 }
 
-void Shifter::write(unsigned long toWrite){
+void DigWriteShifter::write(unsigned long toWrite){
  
      if (_manipulator != NULL)
      	toWrite=_manipulator->manipulate(toWrite);

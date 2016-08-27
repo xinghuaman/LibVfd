@@ -47,9 +47,8 @@ void SevenSegmentEncoder::setEnabled(boolean enabled) {
   }
 }
 
-void SevenSegmentEncoder::getType(char* buffer, int bufsize) {
-  strncpy_P(buffer,txt_SevenSegmentEncoder, bufsize);
-  buffer[bufsize-1] = '\0';
+const char* SevenSegmentEncoder::getRawType() {
+	return txt_SevenSegmentEncoder;
 }
 
 void SevenSegmentEncoder::setOverflow(AnimatableFunction* overflow) {

@@ -1,6 +1,7 @@
 #include <AnimatableLightSwitchCallback.h>
 
 void AnimatableLightSwitchCallback::addFunction(AnimatableFunction *function) {
+	if (_numFunctions >= AnimatableLightSwitchCallbackNumFuncs -1) return;
 	_functions[_numFunctions++]=function;
 }
 

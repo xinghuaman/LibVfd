@@ -2,17 +2,18 @@
 #include "RedGreenVcrVfd.h"
 #include <AbstractVFD.h>
 #include <Shifter.h>
+#include <SpiShifter.h>
 #include <AnotherMultiplexer.h>
 #include <MirroringBitManipulator.h>
 #include <CountingLightShow.h>
 #include <LarsonLightShowBuilder.h>
-#include <LarsonScanner.h>
 #include <LightSwitchCallback.h>
 #include <MemoryFree.h>
 #include <VfdController.h>
 #include <EqualsLikeCommandParser.h>
 #include <CommandAssembler.h>
 #include <TimerOne.h>
+#include <SPI.h>
 
 #define COMMANDBUFSIZE 50
 #define DEBOUNCE_TIME 100
@@ -25,19 +26,14 @@ const int latchPin = 3;
 const int clockPin = 4;
 const int testPin = 9;
 
-Shifter shifter;
+SpiShifter shifter;
 RedGreenVcrVfd vfd;
 AnotherMultiplexer plexi(&shifter, vfd.getBins(), vfd.getNumBins());
-//CountingLightShow show1;
-//LarsonScanner* show2;
-//LarsonLightShowBuilder show2builder;
 Bounce debouncer;
 VfdController controller;
 CommandAssembler assembler;
 
-boolean pinState13=false;
-unsigned long lasttime1;
-unsigned long lasttime2;
+unsigned long lasttime;
 boolean lightShowState=false;
 char buffer0[COMMANDBUFSIZE];
 char buffer1[COMMANDBUFSIZE];
@@ -55,27 +51,25 @@ void setup() {
   Timer1.initialize(CYCLE_TIME_MUS);
   Timer1.attachInterrupt(timeOut);
 
-  shifter.begin(dataPin,latchPin,clockPin,NULL);
-  pinMode(13,OUTPUT);
+  shifter.begin(NULL);
   pinMode(testPin, INPUT_PULLUP);
   debouncer.attach(testPin);
   debouncer.interval(DEBOUNCE_TIME);
-/*
-  show1.addDigit(&(vfd.digit1), 1);
-  show1.addDigit(&(vfd.digit2), 2);
-  show1.addDigit(&(vfd.digit3), 3);
-
-  show2 = show2builder.add(&(vfd._threezero))
-  	->add(&(vfd._s))
-  	->add(&(vfd._v))
-  	->add(&(vfd._cd))
-  	->add(&(vfd._N))
-  	->add(&(vfd._p))
-  	->add(&(vfd._dvd))
-  	->add(&(vfd._pbc))
-  	->add(&(vfd._mp3))
-	->getScanner();
-*/
+  controller
+  	  .add2Show(&vfd._pwr)
+	->add2Show(&vfd._cas)
+	->add2Show(&vfd._bs)
+	->add2Show(&vfd._clk)
+	->add2Show(&vfd._otr)
+	->add2Show(&vfd._wkly)
+	->add2Show(&vfd._su)
+	->add2Show(&vfd._mo)
+	->add2Show(&vfd._tu)
+	->add2Show(&vfd._we)
+	->add2Show(&vfd._th)
+	->add2Show(&vfd._fr)
+	->add2Show(&vfd._sa)
+	->begin(&vfd);
 }      
 
 void loop(){
@@ -84,23 +78,20 @@ void loop(){
 
   if (debouncer.fell()) {
     lightShowState = !lightShowState;
-    //show1.enable(lightShowState);
-    //if (lightShowState) vfd._tdvd.setBlink();
-    //else vfd._tdvd.setEnabled(false);
+    controller.enableLightShow(lightShowState);
+    Serial.println(F("LightShow!"));
   }
  
   if (assembler.isCommandAvailable()) {
+    Serial.println(F("Command Avail!"));
     assembler.getCommand(buffer1,COMMANDBUFSIZE);
-    controller.obey(buffer1, &vfd);
+    controller.obey(buffer1);
   }
   
-  if (millis() - lasttime2 > ANIMATION_TIME_MS) {
+  if (millis() - lasttime > ANIMATION_TIME_MS) {
   	vfd.animate();
-    	digitalWrite(13,pinState13);
-    	pinState13=~pinState13;
-  //  	show1.animate();
-  //  	if (lightShowState) show2->cycle();
-  	lasttime2 = millis();
+	controller.animate();
+  	lasttime = millis();
   }
   
 }

@@ -22,7 +22,11 @@ bool AnimatableFunction::isBlink() {
   return _blink;
 }
 
+const char* AnimatableFunction::getRawType() {
+	return txt_AnimatableFunction;
+}
+
 void AnimatableFunction::getType(char* buffer, int bufsize) {
-   strncpy_P(buffer, txt_AnimatableFunction, bufsize);
+   strncpy_P(buffer, getRawType(), bufsize);
    buffer[bufsize-1] = '\0';
 }

@@ -12,6 +12,7 @@ class AnimatableFunction {
     bool _blink;
     
   public:
+    virtual const char* getRawType();
     virtual void getType(char* buffer, int bufsize);
     virtual void begin(const char * const memonic);
     virtual void getMemonic(char* buffer, int bufsize);

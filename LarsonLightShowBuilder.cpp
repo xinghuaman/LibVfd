@@ -5,9 +5,11 @@ LarsonLightShowBuilder* LarsonLightShowBuilder::add(SingleFunction* func) {
 	return this;
 }
 
-LightSequencer* LarsonLightShowBuilder::getSequencer() {
-	LarsonSequenceGenerator generator;
-	generator.begin(_callback.getNumFunctions(),0, 3, _sequence);
-	_sequencer.begin(&_callback,_sequence);
-	return &_sequencer;
+void LarsonLightShowBuilder::finish() {
+	_scanner.begin(_callback.getNumFunctions(),0, 3, &_callback);
+	
+}
+
+LarsonScanner* LarsonLightShowBuilder::getScanner() {
+	return &_scanner;
 }
