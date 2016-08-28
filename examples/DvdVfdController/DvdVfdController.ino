@@ -1,14 +1,10 @@
 #include <Bounce2.h>
 #include "DvdVfd.h"
 #include <AbstractVFD.h>
-#include <Shifter.h>
+#include <DigWriteShifter.h>
 #include <AnotherMultiplexer.h>
 #include <MirroringBitManipulator.h>
-#include <CountingLightShow.h>
-#include <LarsonLightShowBuilder.h>
-#include <LarsonSequenceGenerator.h>
-#include <LightSequencer.h>
-#include <LightSwitchCallback.h>
+#include <LarsonScanner.h>
 #include <MemoryFree.h>
 #include <VfdController.h>
 #include <EqualsLikeCommandParser.h>
@@ -26,13 +22,9 @@ const int clockPin = 4;
 const int testPin = 9;
 
 MirroringBitManipulator manipulator;
-Shifter shifter;
+DigWriteShifter shifter;
 DvdVfd anotherVFD;
 AnotherMultiplexer plexi(&shifter, anotherVFD.getBins(), 4);
-CountingLightShow show1;
-int sequence[150];
-LarsonLightShowBuilder show2builder;
-LightSequencer* show2;
 Bounce debouncer;
 VfdController controller;
 CommandAssembler assembler;
@@ -56,20 +48,7 @@ void setup() {
   debouncer.attach(testPin);
   debouncer.interval(DEBOUNCE_TIME);
 
-  show1.addDigit(&(anotherVFD.digit1), 1);
-  show1.addDigit(&(anotherVFD.digit2), 2);
-  show1.addDigit(&(anotherVFD.digit3), 3);
-
-  show2 = show2builder.add(&(anotherVFD._threezero))
-  	->add(&(anotherVFD._s))
-  	->add(&(anotherVFD._v))
-  	->add(&(anotherVFD._cd))
-  	->add(&(anotherVFD._N))
-  	->add(&(anotherVFD._p))
-  	->add(&(anotherVFD._dvd))
-  	->add(&(anotherVFD._pbc))
-  	->add(&(anotherVFD._mp3))
-	->getSequencer();
+  controller.begin(&anotherVFD);
    
 }      
 
@@ -79,22 +58,20 @@ void loop(){
 
   if (debouncer.fell()) {
     lightShowState = !lightShowState;
-    show1.enable(lightShowState);
-    if (lightShowState) anotherVFD._tdvd.setBlink();
-    else anotherVFD._tdvd.setEnabled(false);
+    controller.enableLightShow(lightShowState);
+    if (lightShowState) anotherVFD._tdvd.setBlink(); else anotherVFD._tdvd.setEnabled(false);
   }
  
   if (assembler.isCommandAvailable()) {
     assembler.getCommand(buffer1,COMMANDBUFSIZE);
-    controller.obey(buffer1, &anotherVFD);
+    controller.obey(buffer1);
   }
   
   if (millis() - lasttime2 > ANIMATION_TIME_MS) {
   	anotherVFD.animate();
     	digitalWrite(13,pinState13);
     	pinState13=~pinState13;
-    	show1.animate();
-    	if (lightShowState) show2->cycle();
+    	controller.animate();
   	lasttime2 = millis();
   }
   

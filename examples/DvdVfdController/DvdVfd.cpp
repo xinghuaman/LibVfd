@@ -38,39 +38,42 @@ DvdVfd::DvdVfd()
   addFunc(&_tdvd);
 
   _dvdcenter.begin(_bins+0,0x400,PSTR("dvdcenter"));
-  addFunc(&_dvdcenter);
   _threezero.begin(_bins+0,0x800,PSTR("threezero"));
-  addFunc(&_threezero);
   _backslash.begin(_bins+0,0x8000,PSTR("backslash"));
-  addFunc(&_backslash);
 
   _v.begin(_bins+1,0x10,PSTR("v"));
-  addFunc(&_v);
   _cd.begin(_bins+1,0x20,PSTR("cd"));
-  addFunc(&_cd);
   _p.begin(_bins+1,0x40,PSTR("p"));
-  addFunc(&_p);
   _commas.begin(_bins+1,0x80,PSTR("commas"));
-  addFunc(&_commas);
   _dash.begin(_bins+1,0x100,PSTR("dash"));
-  addFunc(&_dash);
   _speakerl.begin(_bins+1,0x200,PSTR("spl"));
-  addFunc(&_speakerl);
   _speakerr.begin(_bins+1,0x400,PSTR("spr"));
-  addFunc(&_speakerr);
   _s.begin(_bins+1,0x800,PSTR("s"));
-  addFunc(&_s);
   _N.begin(_bins+1,0x80000,PSTR("n"));
-  addFunc(&_N);
   
   _pbc.begin(_bins+2,0x800,PSTR("pbc"));
-  addFunc(&_pbc);
   _dvd.begin(_bins+2,0x80000,PSTR("dvd"));
-  addFunc(&_dvd);
-
+  
+  
   _mp3.begin(_bins+3,0x800,PSTR("mp3"));
-  addFunc(&_mp3);
   _doublepoint.begin(_bins+3,0x80000,PSTR("dp"));
+
+
+  addFunc(&_dvdcenter);
+  addFunc(&_threezero);
+  addFunc(&_backslash);
+  addFunc(&_s);
+  addFunc(&_v);
+  addFunc(&_cd);
+  addFunc(&_N);
+  addFunc(&_p);
+  addFunc(&_commas);
+  addFunc(&_dash);
+  addFunc(&_speakerl);
+  addFunc(&_speakerr);
+  addFunc(&_dvd);
+  addFunc(&_pbc);
   addFunc(&_doublepoint);
+  addFunc(&_mp3);
 
 };

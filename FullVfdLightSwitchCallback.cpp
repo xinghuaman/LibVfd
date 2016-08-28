@@ -6,7 +6,7 @@ void FullVfdLightSwitchCallback::begin(AbstractVFD* vfd) {
 
 void FullVfdLightSwitchCallback::setLamp(int num, int state) {
 	AnimatableFunction** funcs = _vfd->getFunctions();
-	const int limit = _vfd->getNumFunctions();
+	const int limit = _vfd->getNumFunctions() - 1;
 	int count=0;
 	int count1=-1;
 	while ( (count1 < num) && (count < limit)) {
