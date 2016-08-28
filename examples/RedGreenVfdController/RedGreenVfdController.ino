@@ -15,7 +15,7 @@
 #include <TimerOne.h>
 #include <SPI.h>
 
-#define COMMANDBUFSIZE 50
+#define COMMANDBUFSIZE 20
 #define DEBOUNCE_TIME 100
 #define BAUD_RATE 9600
 #define ANIMATION_TIME_MS 100
@@ -55,21 +55,7 @@ void setup() {
   pinMode(testPin, INPUT_PULLUP);
   debouncer.attach(testPin);
   debouncer.interval(DEBOUNCE_TIME);
-  controller
-  	  .add2Show(&vfd._pwr)
-	->add2Show(&vfd._cas)
-	->add2Show(&vfd._bs)
-	->add2Show(&vfd._clk)
-	->add2Show(&vfd._otr)
-	->add2Show(&vfd._wkly)
-	->add2Show(&vfd._su)
-	->add2Show(&vfd._mo)
-	->add2Show(&vfd._tu)
-	->add2Show(&vfd._we)
-	->add2Show(&vfd._th)
-	->add2Show(&vfd._fr)
-	->add2Show(&vfd._sa)
-	->begin(&vfd);
+  controller.begin(&vfd);
 }      
 
 void loop(){

@@ -4,7 +4,7 @@
 #include <LightSwitchCallback.h>
 #include <AnimatableFunction.h>
 
-#define AnimatableLightSwitchCallbackNumFuncs 20
+#define AnimatableLightSwitchCallbackNumFuncs 22 
 
 class AnimatableLightSwitchCallback : public LightSwitchCallback {
 	private:

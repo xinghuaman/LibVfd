@@ -8,14 +8,8 @@
 
 #include <Arduino.h>
 
-VfdController* VfdController::add2Show(SingleFunction* singleFunction) {
-	//_builder.add(singleFunction);
-	return this;
-}
-
 void VfdController::begin(AbstractVFD* vfd) {
 	_vfd = vfd;
-	//_builder.finish();
 	
 	AnimatableFunction** funcs = _vfd->getFunctions();
 
@@ -27,21 +21,25 @@ void VfdController::begin(AbstractVFD* vfd) {
 
 		if (func->getRawType() == 1) {
 			Serial.println(F("Adding"));
-			//_show.addDigit((SevenSegmentEncoder*) funcs[i], i);
+			_show.addDigit((SevenSegmentEncoder*) funcs[i], i);
 		}
 		
 	}
+
+	_callback.begin(_vfd);
+	_scanner.begin(_callback.getNumFunctions(),0,3,&_callback);
+
 }
 
 void VfdController::animate() {
 	if (!_isLightShowEnabled) return;
-	//_builder.getScanner()->cycle();	
-//	_show.animate();
+	_scanner.cycle();	
+	_show.animate();
 }
 
 void VfdController::enableLightShow(bool enabled) {
 	_isLightShowEnabled = enabled;
-	//_show.enable(_isLightShowEnabled);
+	_show.enable(_isLightShowEnabled);
 }
 
 

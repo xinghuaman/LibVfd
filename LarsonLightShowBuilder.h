@@ -3,7 +3,6 @@
 
 #include <AnimatableLightSwitchCallback.h>
 #include <SingleFunction.h>
-#include <LarsonSequenceGenerator.h>
 #include <LarsonScanner.h>
 
 class LarsonLightShowBuilder {
