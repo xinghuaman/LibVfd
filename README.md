@@ -37,10 +37,18 @@ phosphorescent layer.
 ![A Vfd in principle](./hardware/principle.png  "A Vfd in principle")
 
 Described starting from the viewer first there is a covering glasslayer.
-Under the glass there are some heating wires, usually horizontally
-running from left to right. In normal operation the heating wires are
-not glowing or very barely glowing. 
+Under the glass there are heating wires running horizontally. They are
+hot enough to emit electrons, but not hot enough to glow noticably.
 
-## Building the Hardware 
+The next layer is formed by adjacent, electrically separated gridsegments
+that cover the full surface of the display.
 
+Below the grids there are anodes in the shape of the items to be displayed.
+Usually there are elements forming seven-segment numbers and also task specific
+symbols like arrows to signal "play" "fast-forward" etc.
+
+These anodes are covered by a phosphor layer that starts to emit visible, usually
+blueish-green light as soon as electrons impact the anodes.
+
+To 
 
